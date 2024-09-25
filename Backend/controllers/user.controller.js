@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export const createUser = async (req, res) => {
     try {
-        const { name, email, password, userType, birthDate, phone, address, notificationPreferences } = req.body;
+        const { name, email, password } = req.body;
 
         // Se verifica si el usuario ya existe
         const existingUser = await User.findOne({ email });
@@ -17,7 +17,7 @@ export const createUser = async (req, res) => {
         const hashedPassword = await bycrypt.hash(password, salt);
 
         // Se crea el nuevo usuario
-        const newUser = new User({ name, email, password: hashedPassword, userType, birthDate, phone, address, notificationPreferences });
+        const newUser = new User({ name, email, password: hashedPassword });
         await newUser.save();
 
         res.status(201).json({ message: "Usuario creado exitosamente" });
