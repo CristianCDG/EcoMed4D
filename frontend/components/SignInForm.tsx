@@ -7,11 +7,24 @@ import {
   IconBrandGoogle,
 } from "@tabler/icons-react";
 
-export function SignInFormDemo() {
+interface SignInFormDemoProps {
+  onSignUpClick?: () => void;
+}
+
+export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted");
   };
+
+
+  const handleSignUpClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (onSignUpClick) {
+      onSignUpClick();
+    }
+  };
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
@@ -45,6 +58,23 @@ export function SignInFormDemo() {
           type="submit"
         >
           Inicie sesión &rarr;
+          <BottomGradient />
+        </button>
+
+        <button
+          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
+          type="button"
+          onClick={onSignUpClick}
+        >
+           o Registrese &rarr;
+          <BottomGradient />
+        </button>
+
+        <button
+          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
+          type="submit"
+        >
+          ¿Contraseña olvidada? &rarr;
           <BottomGradient />
         </button>
 
