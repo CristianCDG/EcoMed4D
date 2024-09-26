@@ -9,7 +9,7 @@ export default function Home() {
         <Hero />
       </div>
       <div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center">
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-md mx-auto h-[80vh] overflow-auto">
           <SignupFormDemo />
         </div>
       </div>
