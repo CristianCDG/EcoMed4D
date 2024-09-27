@@ -12,7 +12,7 @@ export const createUser = async (req, res) => {
             return res.status(400).json({ message: "El usuario ya existe" });
         }
 
-        // Se encripta la contraseña del usuario
+        // Se encripta la contraseña del usuario y se crea el nuevo usuario
         const salt = await bycrypt.genSalt(10);
         const hashedPassword = await bycrypt.hash(password, salt);
 
