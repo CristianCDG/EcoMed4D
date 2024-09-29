@@ -22,9 +22,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
   const handleSignUpClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (onSignUpClick) {
-      onSignUpClick();
-    }
+   
     router.push('/dashboard')
   };
 
