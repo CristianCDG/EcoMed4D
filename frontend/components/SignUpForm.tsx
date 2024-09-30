@@ -24,6 +24,7 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
     if (onSignInClick) {
       onSignInClick();
     }
+    
   };
 
   return (
