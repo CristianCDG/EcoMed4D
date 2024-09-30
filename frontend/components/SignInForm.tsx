@@ -20,7 +20,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   };
 
 
-  const handleSignUpClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
    
     router.push('/dashboard')
@@ -57,7 +57,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
           type="submit"
-          onClick={handleSignUpClick}
+          onClick={handleSignInClick}
         >
           Inicie sesión &rarr;
           <BottomGradient />
