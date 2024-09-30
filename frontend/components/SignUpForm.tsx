@@ -1,12 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/Input";
 import { cn } from "../utils/cn";
 import {
   IconBrandGithub,
   IconBrandGoogle,
-  IconBrandOnlyfans,
 } from "@tabler/icons-react";
 
 interface SignupFormDemoProps {
@@ -14,9 +13,41 @@ interface SignupFormDemoProps {
 }
 
 export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    setMessage("");
+
+    if (password !== confirmPassword) {
+      setMessage("Las contraseñas no coinciden.");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, lastname, email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setMessage("Se ha enviado un correo de confirmación a " + email);
+      } else {
+        setMessage(data.message);
+      }
+    } catch (error) {
+      console.error("Error al registrarse:", error);
+      setMessage("Error al registrarse. Inténtalo de nuevo.");
+    }
   };
 
   const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -35,28 +66,30 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
         Registrese llenando los siguientes datos.
       </p>
 
+      {message && <p className="text-green-600">{message}</p>}
+
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">Nombre</Label>
-            <Input id="firstname" placeholder="Cristian" type="text" />
+            <Input id="firstname" placeholder="Cristian" type="text" value={name} onChange={(e) => setName(e.target.value)} />
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Apellido</Label>
-            <Input id="lastname" placeholder="Dominguez" type="text" />
+            <Input id="lastname" placeholder="Dominguez" type="text" value={lastname} onChange={(e) => setLastname(e.target.value)} />
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" placeholder="cristian@hotmail.com" type="email" />
+          <Input id="email" placeholder="cristian@hotmail.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Contraseña</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <Input id="password" placeholder="••••••••" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
-          <Label htmlFor="password">Confirmar contraseña</Label>
-          <Input id="twitterpassword" placeholder="••••••••" type="password" />
+          <Label htmlFor="confirm-password">Confirmar contraseña</Label>
+          <Input id="confirm-password" placeholder="••••••••" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         </LabelInputContainer>
 
         <button
