@@ -1,5 +1,5 @@
-import React from "react";
-import { SidebarDemo } from "@/components/Dashboard";
+import React from 'react';
+import { SidebarDemo } from '@/components/Dashboard';
 
 const Dashboard = () => {
   return (

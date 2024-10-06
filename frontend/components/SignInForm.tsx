@@ -5,6 +5,7 @@ import { Input } from './ui/Input';
 import { cn } from '../utils/cn';
 import { IconBrandGoogle } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -16,6 +17,8 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState('');
+
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,7 +67,10 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       setSuccessMessage('Inicio de sesión exitoso');
 
       // Almacenar el token en localStorage
-      localStorage.setItem('token', loginData.token);
+      localStorage.setItem('token', loginData.token); // Almacenar el token en localStorage
+
+      // Redirigir al dashboard
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error al registrar usuario', error);
       setErrors({ general: 'Error al registrar usuario' });
