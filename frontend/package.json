@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "framer-motion": "^11.11.0",
     "mini-svg-data-uri": "^1.4.4",
     "next": "14.2.12",
     "next.js": "^1.0.3",
