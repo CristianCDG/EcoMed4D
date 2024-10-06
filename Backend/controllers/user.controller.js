@@ -1,10 +1,10 @@
 import User from "../models/user.model.js";
-import bycrypt from "bcryptjs";
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export const createUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, lastname, email, password } = req.body;
 
         // Se verifica si el usuario ya existe
         const existingUser = await User.findOne({ email });
@@ -13,11 +13,11 @@ export const createUser = async (req, res) => {
         }
 
         // Se encripta la contraseña del usuario y se crea el nuevo usuario
-        const salt = await bycrypt.genSalt(10);
-        const hashedPassword = await bycrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         // Se crea el nuevo usuario
-        const newUser = new User({ name, email, password: hashedPassword });
+        const newUser = new User({ name, lastname, email, password: hashedPassword });
         await newUser.save();
 
         res.status(201).json({ message: "Usuario creado exitosamente" });
@@ -34,10 +34,10 @@ export const getUserbyEmail = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+            return res.status(200).json({ exists: false });
         }
 
-        res.status(200).json(user);
+        res.status(200).json({ exists: true });
     } catch (error) {
         console.error('Error al obtener el usuario por email:', error);
         res.status(500).json({ message: "Error interno del servidor" });
@@ -100,30 +100,32 @@ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Se verifica si el usuario existe
+        // Buscar el usuario por su correo electrónico
         const user = await User.findOne({ email });
+
+        // Si no se encuentra el usuario, devolver un error genérico
         if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+            return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
-        // Se verifica si la contraseña es correcta
-        const isMatch = await bycrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Usuario o contraseña incorrectos" });
+        // Verificar la contraseña
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        // Si la contraseña es incorrecta, devolver un error genérico
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
-        // Se genera el token de autenticación para el usuario
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        //Comentario para hacer commit y quede registrada la incidencia en Jira
-
-        res.status(200).json({
-            message: "Inicio de sesión exitoso",
-            token
+        // Generar un token JWT
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
         });
+
+        // Enviar el token en la respuesta
+        res.json({ token });
 
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
-        res.status(500).json({ message: "Error interno del servidor" });
+        res.status(500).json({ error: 'Error en el servidor' });
     }
 };
