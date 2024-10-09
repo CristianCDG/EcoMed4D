@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Label } from "../../../components/ui/label";
-import { Input } from "../../../components/ui/Input";
-import { cn } from "../../../utils/cn";
+import { Label } from "./ui/label";
+import { Input } from "./ui/Input";
+import { cn } from "../utils/cn";
 
 export default function RegisterPacient() {
   const router = useRouter();
