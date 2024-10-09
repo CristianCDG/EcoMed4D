@@ -158,10 +158,12 @@ export const MobileSidebar = ({
 export const SidebarLink = ({
   link,
   className,
+  onClick, // Agregar esta línea
   ...props
 }: {
   link: Links;
   className?: string;
+  onClick?: () => void; // Agregar esta línea
   props?: LinkProps;
 }) => {
   const { open, animate } = useSidebar();
@@ -173,9 +175,9 @@ export const SidebarLink = ({
         className
       )}
       {...props}
+      onClick={onClick} // Modificar esta línea
     >
       {link.icon}
-
       <motion.span
         animate={{
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
@@ -188,3 +190,4 @@ export const SidebarLink = ({
     </Link>
   );
 };
+
