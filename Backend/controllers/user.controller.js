@@ -20,7 +20,14 @@ export const createUser = async (req, res) => {
         const newUser = new User({ name, email, password: hashedPassword });
         await newUser.save();
 
-        res.status(201).json({ message: "Usuario creado exitosamente" });
+        const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.cookie('token', token);
+        res.status(201).json({
+            id:newUser._id,
+            name:newUser.name,
+            email:newUser.email,
+        });
 
     } catch (error) {
         console.error('Error al crear el usuario:', error);
@@ -117,9 +124,11 @@ export const loginUser = async (req, res) => {
 
         //Comentario para hacer commit y quede registrada la incidencia en Jira
 
-        res.status(200).json({
-            message: "Inicio de sesión exitoso",
-            token
+        res.cookie('token', token);
+        res.status(201).json({
+            id:user._id,
+            username:user.username,
+            email:user.email,
         });
 
     } catch (error) {
