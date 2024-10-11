@@ -1,10 +1,11 @@
 "use client"
-
+import { cn } from "../utils/cn";
 import { useState, ChangeEvent } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/Input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search } from "lucide-react"
+import { SidebarComponent } from "./Sidebar"; 
 
 interface Patient {
   cc: string
@@ -20,6 +21,7 @@ const initialPatients: Patient[] = [
 ]
 
 export default function PatientList() {
+  const [open, setOpen] = useState(false);
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [searchCC, setSearchCC] = useState<string>('')
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>(initialPatients)
@@ -53,60 +55,73 @@ export default function PatientList() {
     const filtered = patients.filter(patient => patient.cc.includes(searchCC))
     setFilteredPatients(filtered.length > 0 ? filtered : patients)
   }
-
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-4 flex items-center space-x-2">
-        <Input 
-          type="text" 
-          placeholder="Buscar por CC del paciente" 
-          value={searchCC} 
-          onChange={(e) => setSearchCC(e.target.value)}
-          aria-label="Buscar por cédula de ciudadanía del paciente"
-        />
-        <Button onClick={handleSearch}>
-          <Search className="h-4 w-4 mr-2" />
-          Buscar
-        </Button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>CC</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Adjuntar Archivo</TableHead>
-            <TableHead>Enviar Archivo</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredPatients.map((patient) => (
-            <TableRow key={patient.cc}>
-              <TableCell>{patient.cc}</TableCell>
-              <TableCell>{patient.name}</TableCell>
-              <TableCell>{patient.email}</TableCell>
-              <TableCell>
-                <Input 
-                  type="file" 
-                  onChange={(e) => handleFileChange(e, patient.cc)} 
-                  className="max-w-xs"
-                  aria-label={`Adjuntar archivo para ${patient.name}`}
-                />
-                {patient.file && <p className="text-sm text-gray-500 mt-1">{patient.file.name}</p>}
-              </TableCell>
-              <TableCell>
-                <Button 
-                  onClick={() => handleSendFile(patient)} 
-                  disabled={!patient.file}
-                  aria-label={`Enviar archivo a ${patient.name}`}
-                >
-                  Enviar Archivo
-                </Button>
-              </TableCell>
+    <div
+      className={cn(
+        "rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
+        "h-screen w-full"
+      )}
+    >
+      {/* Sidebar a la izquierda */}
+      <SidebarComponent open={open} setOpen={setOpen} />
+
+      {/* Contenido principal a la derecha */}
+      <div className="flex-1 container p-4 ml-auto">
+
+        <div className="mb-4 flex items-center space-x-2">
+          <Input
+            type="text"
+            placeholder="Buscar por CC del paciente"
+            value={searchCC}
+            onChange={(e) => setSearchCC(e.target.value)}
+            aria-label="Buscar por cédula de ciudadanía del paciente"
+          />
+          <Button onClick={handleSearch}>
+            <Search className="h-4 w-4 mr-2" />
+            Buscar
+          </Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>CC</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Adjuntar Archivo</TableHead>
+              <TableHead>Enviar Archivo</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredPatients.map((patient) => (
+              <TableRow key={patient.cc}>
+                <TableCell>{patient.cc}</TableCell>
+                <TableCell>{patient.name}</TableCell>
+                <TableCell>{patient.email}</TableCell>
+                <TableCell>
+                  <Input
+                    type="file"
+                    onChange={(e) => handleFileChange(e, patient.cc)}
+                    className="max-w-xs"
+                    aria-label={`Adjuntar archivo para ${patient.name}`}
+                  />
+                  {patient.file && (
+                    <p className="text-sm text-gray-500 mt-1">{patient.file.name}</p>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => handleSendFile(patient)}
+                    disabled={!patient.file}
+                    aria-label={`Enviar archivo a ${patient.name}`}
+                  >
+                    Enviar Archivo
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
-  )
+  );
 }
