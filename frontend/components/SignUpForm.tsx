@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { Label } from './ui/label';
 import { Input } from './ui/Input';
 import { cn } from '../utils/cn';
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from '@tabler/icons-react';
 
 interface SignupFormDemoProps {
   onSignInClick?: () => void;

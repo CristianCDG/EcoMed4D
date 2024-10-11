@@ -1,11 +1,9 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from './ui/label';
 import { Input } from './ui/Input';
 import { cn } from '../utils/cn';
 import { IconBrandGoogle } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -18,13 +16,10 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  const router = useRouter();
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
 
-  // Constante que maneja el click en el botón de iniciar sesión
   const handleSignInClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -67,10 +62,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       setSuccessMessage('Inicio de sesión exitoso');
 
       // Almacenar el token en localStorage
-      localStorage.setItem('token', loginData.token); // Almacenar el token en localStorage
-
-      // Redirigir al dashboard
-      router.push('/dashboard');
+      localStorage.setItem('token', loginData.token);
     } catch (error) {
       console.error('Error al registrar usuario', error);
       setErrors({ general: 'Error al registrar usuario' });
@@ -112,7 +104,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         <LabelInputContainer className="mb-8">
           <Label htmlFor="password">Confirmar contraseña</Label>
           <Input
-            id="twitterpassword"
+            id="confirmPassword"
             placeholder="••••••••"
             type="password"
             onChange={(e) => setConfirmPassword(e.target.value)}
