@@ -1,4 +1,5 @@
-// Archivo: components/DashboardPage.js
+
+"use client";
 import React, { useState } from "react";
 import { SidebarComponent } from "./Sidebar"; 
 import { cn } from "../utils/cn";
