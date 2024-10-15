@@ -1,75 +1,12 @@
+
 "use client";
 import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "../components/ui/sidebar";
-import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-  IconSlideshow,
-  IconForms,
-  IconUser,
-  IconUserCheck,
-  IconUsersPlus,
-} from "@tabler/icons-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { SidebarComponent } from "./Sidebar"; 
 import { cn } from "../utils/cn";
-import RegisterPacient from "./registerPacient"; // Importar el formulario de registro
 
-export function SidebarDemo() {
-  const [selectedSection, setSelectedSection] = useState<string>("");
-
-  const links = [
-    {
-      label: "Dashboard",
-      href: "#",
-      icon: (
-        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-      onClick: () => setSelectedSection("dashboard"),
-    },
-    {
-      label: "Videos ecografía 4D",
-      href: "/ultrasoundMedia",
-      icon: (
-        <IconSlideshow className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Perfil",
-      href: "#",
-      icon: (
-        <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-      onClick: () => setSelectedSection("profile"),
-    },
-    {
-      label: "Registrar Paciente",
-      href: "#",
-      icon: (
-        <IconUsersPlus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-      onClick: () => setSelectedSection("register"),
-    },
-    {
-      label: "Configuración",
-      href: "#",
-      icon: (
-        <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-      onClick: () => setSelectedSection("settings"),
-    },
-    {
-      label: "Salir",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-  ];
-
+// Dummy dashboard component with content
+const Dashboard = () => {
+  const [open, setOpen] = useState(false);
   return (
     <div
       className={cn(
@@ -77,96 +14,30 @@ export function SidebarDemo() {
         "h-screen w-full"
       )}
     >
-      <Sidebar>
-        <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            <>
-              <Logo />
-            </>
-            <div className="mt-8 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} onClick={link.onClick} />
-              ))}
-            </div>
-          </div>
-          <div>
-            <SidebarLink
-              link={{
-                label: "Cristian Dominguez",
-                href: "#",
-                icon: (
-                  <Image
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-          </div>
-        </SidebarBody>
-      </Sidebar>
-
-      {/* Renderizado condicional basado en la sección seleccionada */}
+      <SidebarComponent open={open} setOpen={setOpen} />
+  
       <div className="flex flex-1">
-        {selectedSection === "register" && <RegisterPacient />}
-        {selectedSection === "dashboard" && <DashboardContent />}
-        {selectedSection === "profile" && <ProfileContent />} {/* Contenido para el perfil, si es necesario */}
+        <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+          <div className="flex gap-2">
+            {[...new Array(4)].map((_, i) => (
+              <div
+                key={"first" + i}
+                className="h-20 w-full rounded-lg  bg-gray-100 dark:bg-neutral-800 animate-pulse"
+              ></div>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-1">
+            {[...new Array(2)].map((_, i) => (
+              <div
+                key={"second" + i}
+                className="h-full w-full rounded-lg  bg-gray-100 dark:bg-neutral-800 animate-pulse"
+              ></div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-export const Logo = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium text-black dark:text-white whitespace-pre"
-      >
-        EcoMed4D
-      </motion.span>
-    </Link>
-  );
-};
-
-// Componente para el contenido del dashboard
-const DashboardContent = () => {
-  return (
-    <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-      <div className="flex gap-2">
-        {[...new Array(4)].map((i) => (
-          <div
-            key={"first" + i}
-            className="h-20 w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-          ></div>
-        ))}
-      </div>
-      <div className="flex gap-2 flex-1">
-        {[...new Array(2)].map((i) => (
-          <div
-            key={"second" + i}
-            className="h-full w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-          ></div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Componente de contenido para el perfil (puedes personalizarlo según tus necesidades)
-const ProfileContent = () => {
-  return (
-    <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-      <h2 className="text-lg font-bold">Perfil</h2>
-      {/* Aquí puedes agregar información y funcionalidades del perfil */}
-    </div>
-  );
-};
+export default Dashboard;
