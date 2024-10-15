@@ -4,8 +4,8 @@ import jwt from 'jsonwebtoken';
 
 export const getPatients = async (req, res) => {
     const patients = await Patient.find({
-        user: req.user.id
-    }).populate('user')
+        medico: req.user.id
+    }).populate('medico')
     console.log(patients)
     res.json(patients);
 }
@@ -26,7 +26,7 @@ export const createPatient = async (req, res) => {
         name, 
         email,
         password: hashedPassword,
-        user: req.user.id
+        medico: req.user.id
     });
 
     const savedPatient = await newPatient.save()
@@ -35,7 +35,7 @@ export const createPatient = async (req, res) => {
 }
 
 // export const getPatient = async (req, res) => {
-    // const patientFound = await Task.findById(req.params.id).populate('user')
+    // const patientFound = await Task.findById(req.params.id).populate('medico')
     // if(!patientFound) return res.status(404).json({ message: "Paciente no encontrado"})
     // console.log(patientFound); // Imprime el objeto antes de enviarlo
     // res.json(patientFound);
@@ -49,8 +49,14 @@ export const createPatient = async (req, res) => {
     // res.json(taskFound);
 // }
 
-// export const deleteTask = async (req, res) => {
-   // const taskFound = await Task.findByIdAndDelete(req.params.id)
-   // if(!taskFound) return res.status(404).json({ message: "Task not found"})
-   // return res.sendStatus(204);
-// }
+export const deletePatient = async (req, res) => {
+    const { email } = req.params;
+    const patientFound = await Patient.findOneAndDelete({ email });
+    if(!patientFound) return res.status(404).json({ message: "Paciente no encontrado"})
+    return res.status(204).json({
+        message: "Paciente eliminado",
+        name:patientFound.name,
+        email:patientFound.email,
+    });
+ }
+ 
