@@ -1,12 +1,10 @@
-"use client";
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Label } from "./ui/label";
-import { Input } from "./ui/Input";
-import { cn } from "../utils/cn";
-import {
-  IconBrandGoogle,
-} from "@tabler/icons-react";
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { Label } from './ui/label';
+import { Input } from './ui/Input';
+import { cn } from '../utils/cn';
+import { IconBrandGoogle } from '@tabler/icons-react';
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -14,17 +12,18 @@ interface SignInFormDemoProps {
 
 export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const router = useRouter();
+
+  // Funcion que se ejecuta cuando se envia el formulario para registrarse
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    console.log('Formulario enviado iniciar sesion');
   };
-
 
   const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-   
-    
-    router.push('/dashboard')
+
+    router.push('/dashboard');
   };
 
   return (
@@ -37,7 +36,6 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       </p>
 
       <form className="my-8" onSubmit={handleSubmit}>
-
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">E-mail</Label>
           <Input id="email" placeholder="cristian@hotmail.com" type="email" />
@@ -48,11 +46,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
           <Label htmlFor="password">Confirmar contraseña</Label>
-          <Input
-            id="twitterpassword"
-            placeholder="••••••••"
-            type="password"
-          />
+          <Input id="twitterpassword" placeholder="••••••••" type="password" />
         </LabelInputContainer>
 
         <button
@@ -69,7 +63,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
           type="button"
           onClick={onSignUpClick}
         >
-           o Registrese &rarr;
+          o Registrese &rarr;
           <BottomGradient />
         </button>
 
@@ -83,8 +77,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
-        <div className="flex flex-col space-y-4">
-        </div>
+        <div className="flex flex-col space-y-4"></div>
       </form>
     </div>
   );
@@ -107,7 +100,7 @@ const LabelInputContainer = ({
   className?: string;
 }) => {
   return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
+    <div className={cn('flex flex-col space-y-2 w-full', className)}>
       {children}
     </div>
   );

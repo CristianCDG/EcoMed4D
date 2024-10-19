@@ -6,8 +6,8 @@ import { authRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 
-router.get('/patients', authRequired, getPatients);
-router.post('/patients', authRequired, createPatient);
+router.get('/', authRequired, getPatients);
+router.post('/', authRequired, createPatient);
 
 
 export default router;

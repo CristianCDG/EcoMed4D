@@ -57,8 +57,9 @@ app.post('/convert', upload.single('file'), (req, res) => {
 });
 
 // Routes
-app.use('/api', userRoutes, patientRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/patients', patientRoutes);
 
 app.listen(PORT, () => {
-    console.log('Server UP running in http://localhost:', PORT)
+  console.log('Server UP running in http://localhost:', PORT)
 });
