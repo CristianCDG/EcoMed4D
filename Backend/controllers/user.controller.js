@@ -1,38 +1,57 @@
 import User from "../models/user.model.js";
-import bycrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import sendConfirmationEmail  from "../services/emailService.js"; // Importar el servicio de correo
 
 export const createUser = async (req, res) => {
     try {
         const { name, lastname, email, password } = req.body;
 
-        // Se verifica si el usuario ya existe
+        // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "El correo ya está registrado. Por favor, use otro." });
         }
 
-        // Se encripta la contraseña del usuario y se crea el nuevo usuario
-        const salt = await bycrypt.genSalt(10);
-        const hashedPassword = await bycrypt.hash(password, salt);
+        // Generar token de confirmación
+        const token = jwt.sign({ email }, process.env.JWT_EMAIL_SECRET, { expiresIn: '3m' });
 
-        // Se crea el nuevo usuario
+        // Enviar correo de confirmación con el token
+        const mailOptions = {
+            from: "ecomedd521@gmail.com",
+            to: email,
+            subject: "Confirmación de registro en EcoMed4D",
+            text: `Hola ${name},\n\nPor favor, confirma tu correo haciendo clic en el siguiente enlace:\n\nhttp://localhost:3500/confirmar-email?token=${token}`,
+        };
+
+        await sendConfirmationEmail(mailOptions);
+
+        res.status(200).json({ message: "Correo de confirmación enviado. Revisa tu bandeja de entrada." });
+    } catch (error) {
+        console.error('Error al registrar usuario:', error);
+        res.status(500).json({ message: "Error al registrar usuario." });
+    }
+};
+
+// Controlador para confirmar el token y crear al usuario
+export const confirmEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const { email } = decoded;
+
+        // Crear el usuario tras la confirmación
+        const { name, lastname, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({ name, lastname, email, password: hashedPassword });
         await newUser.save();
 
-        const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.cookie('token', token);
-        res.status(201).json({
-            id: newUser._id,
-            name: newUser.name,
-            lastname: newUser.lastname,
-            email: newUser.email,
-        });
-
+        res.status(201).json({ message: "Usuario creado exitosamente. Ya puedes iniciar sesión." });
     } catch (error) {
-        console.error('Error al crear el usuario:', error);
-        res.status(500).json({ message: "Error al crear el usuario", error: error.message });
+        console.error('Error al confirmar el token:', error);
+        res.status(400).json({ message: "El enlace ha expirado o es inválido." });
     }
 };
 
