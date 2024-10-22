@@ -5,6 +5,7 @@ import { Label } from './ui/label';
 import { Input } from './ui/Input';
 import { cn } from '../utils/cn';
 import { IconBrandGoogle } from '@tabler/icons-react';
+import { Cookie } from 'next/font/google';
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -40,7 +41,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       });
 
       const data = await response.json();
-
+      const cookie = response.headers.getSetCookie();
       if (!response.ok) {
         if (response.status === 404) {
           setError('El correo no está registrado.');
@@ -52,7 +53,10 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         return;
       }
 
-      localStorage.setItem('id', data.id);
+      localStorage.setItem('id', data.id,);
+      localStorage.setItem('token', cookie[0]);
+      //console.log(cookie)
+    
       setMessage('Inicio de sesión exitoso.');
       router.push('/dashboard');
     } catch (error) {

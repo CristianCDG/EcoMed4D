@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -14,8 +14,26 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "../utils/cn";
+import jwt from 'jsonwebtoken';
 
-export const SidebarComponent = ({ open, setOpen }) => {
+type User = {email: string, id: string} | null
+
+export const SidebarComponent = ({ open, setOpen }:any) => {
+  //const token = localStorage.getItem("token")
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTIzNDU2Nzg5MCIsImVtYWlsIjoicGFjaWVudGUyQGdtYWlsIiwiaWQiOiI2NzA4NDVhMTQ4YmQ0ODY0ZTYxZmNjNDYifQ.ye7xPQ42KQbkWhZrKFSOiKHcXcuqhaAGhlfQ94a_n64"
+  const [usuario, setUsuario] = useState<User>(null); 
+ 
+useEffect(()=>{
+ 
+  const decodeToken = jwt.decode(token)
+   
+  if (decodeToken){
+    const loginUser = {email: decodeToken.email, id: decodeToken.id}
+    setUsuario(loginUser)
+  }
+})
+ 
+
   const links = [
     {
       label: "Dashboard",
@@ -24,6 +42,7 @@ export const SidebarComponent = ({ open, setOpen }) => {
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
+
     {
       label: "Videos ecografía 4D",
       href: "/ultrasoundMedia",
@@ -31,6 +50,7 @@ export const SidebarComponent = ({ open, setOpen }) => {
         <IconSlideshow className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
+
     {
       label: "Conversion de videos",
       href: "/videoUpload",
@@ -82,7 +102,7 @@ export const SidebarComponent = ({ open, setOpen }) => {
         <div>
           <SidebarLink
             link={{
-              label: "Cristian Dominguez",
+              label: usuario?.email ??"usuario no encontrado",
               href: "#",
               icon: (
                 <Image

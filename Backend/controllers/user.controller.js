@@ -8,7 +8,7 @@ export const createUser = async (req, res) => {
         const { name, lastname, email, password } = req.body;
 
         // Verificar si el usuario ya existe
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email }); 
         if (existingUser) {
             return res.status(400).json({ message: "El correo ya está registrado. Por favor, use otro." });
         }

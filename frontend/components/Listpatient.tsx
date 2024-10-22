@@ -1,11 +1,12 @@
 "use client"
 import { cn } from "../utils/cn";
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent,useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/Input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search } from "lucide-react"
 import { SidebarComponent } from "./Sidebar"; 
+
 
 interface Patient {
   cc: string
@@ -15,9 +16,7 @@ interface Patient {
 }
 
 const initialPatients: Patient[] = [
-  { cc: "25478659", name: 'Juan Pérez', email: 'juan@example.com', file: null },
-  { cc: "52369874", name: 'María García', email: 'maria@example.com', file: null },
-  { cc: "10236548", name: 'Carlos Rodríguez', email: 'carlos@example.com', file: null },
+  
 ]
 
 export default function PatientList() {
@@ -25,6 +24,7 @@ export default function PatientList() {
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [searchCC, setSearchCC] = useState<string>('')
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>(initialPatients)
+  const [data, setData] = useState<string>('')
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, patientCC: string) => {
     if (e.target.files) {
@@ -35,6 +35,21 @@ export default function PatientList() {
       setFilteredPatients(updatedPatients)
     }
   }
+
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/users/1');
+        if (!response.ok) {
+          throw new Error('Error en la petición');
+        }
+        const data: User = await response.json(); // Tipamos la respuesta como User
+        setData(data.name); // Guardamos el nombre en el estado
+      } catch (error: any) {
+        setData(error.message); // Guardamos el mensaje de error si ocurre
+      }
+    };
 
   const handleSendFile = (patient: Patient) => {
     if (patient.file) {
