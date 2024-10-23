@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "./provider";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from './provider';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "EcoMed4D",
-  description: "Reinventing 4D",
+  title: 'EcoMed4D',
+  description: 'Reinventing 4D',
 };
 
 export default function RootLayout({

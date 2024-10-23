@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Label } from './ui/label';
 import { Input } from './ui/Input';
@@ -12,18 +12,53 @@ interface SignInFormDemoProps {
 
 export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   // Funcion que se ejecuta cuando se envia el formulario para registrarse
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Formulario enviado iniciar sesion');
-  };
+    setError('');
+    setMessage('');
 
-  const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+    try {
+      if (password !== confirmPassword) {
+        setError('Las contraseñas no coinciden.');
+        return;
+      }
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    router.push('/dashboard');
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('El correo no está registrado.');
+        } else if (response.status === 400) {
+          setError('Algunos de los datos es incorrecto, verifique por favor');
+        } else {
+          setError('Error al iniciar sesión. Inténtelo de nuevo más tarde.');
+        }
+        return;
+      }
+
+      localStorage.setItem('token', data.token); // Guardar token en local storage
+      setMessage('Inicio de sesión exitoso.');
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error al iniciar sesión: ', error);
+      setError('Error al iniciar sesión. Inténtelo de nuevo más tarde.');
+    }
   };
 
   return (
@@ -38,21 +73,38 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       <form className="my-8" onSubmit={handleSubmit}>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" placeholder="cristian@hotmail.com" type="email" />
+          <Input
+            id="email"
+            placeholder="cristian@hotmail.com"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Contraseña</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <Input
+            id="password"
+            placeholder="••••••••"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
           <Label htmlFor="password">Confirmar contraseña</Label>
-          <Input id="twitterpassword" placeholder="••••••••" type="password" />
+          <Input
+            id="twitterpassword"
+            placeholder="••••••••"
+            type="password"
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
         </LabelInputContainer>
+
+        <p className="text-red-500 text-sm">{error}</p>
+        <p className="text-green-500 text-sm">{message}</p>
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
           type="submit"
-          onClick={handleSignInClick}
         >
           Inicie sesión &rarr;
           <BottomGradient />
@@ -69,7 +121,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
-          type="submit"
+          onClick={() => router.push('/forgotPassword')}
         >
           ¿Contraseña olvidada? &rarr;
           <BottomGradient />
