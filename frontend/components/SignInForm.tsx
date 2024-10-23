@@ -52,7 +52,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         return;
       }
 
-      localStorage.setItem('id', data.id);
+      localStorage.setItem('token', data.token); // Guardar token en local storage
       setMessage('Inicio de sesión exitoso.');
       router.push('/dashboard');
     } catch (error) {
@@ -60,12 +60,6 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       setError('Error al iniciar sesión. Inténtelo de nuevo más tarde.');
     }
   };
-
-  // const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-  //   e.preventDefault();
-
-  //   router.push('/dashboard');
-  // };
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
@@ -127,7 +121,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
-          type="submit"
+          onClick={() => router.push('/forgotPassword')}
         >
           ¿Contraseña olvidada? &rarr;
           <BottomGradient />
