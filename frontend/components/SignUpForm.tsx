@@ -9,8 +9,6 @@ import {
   IconBrandOnlyfans,
 } from '@tabler/icons-react';
 
-import bcrypt from 'bcryptjs';
-
 interface SignupFormDemoProps {
   onSignInClick?: () => void;
 }
@@ -21,7 +19,7 @@ interface Errors {
   email?: string;
   password?: string;
   confirmPassword?: string;
-  general?: string; // Añadir un campo general para mensajes de error generales
+  general?: string;
 }
 
 export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
