@@ -16,7 +16,7 @@ import Image from "next/image";
 import { cn } from "../utils/cn";
 import jwt from "jsonwebtoken";
 
-type User = { email: string; id: string } | null;
+type User = { name: string; id: string } | null;
 
 export const SidebarComponent = ({ open, setOpen }: any) => {
   const [usuario, setUsuario] = useState<User>(null);
@@ -27,8 +27,9 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       const token = localStorage.getItem("token"); 
       if (token) {
         const decodeToken: any = jwt.decode(token);
+        console.log(decodeToken)
         if (decodeToken) {
-          const loginUser = { email: decodeToken.email, id: decodeToken.id };
+          const loginUser = { name: decodeToken.name, id: decodeToken.id };
           setUsuario(loginUser);
         }
       }
@@ -101,7 +102,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
         <div>
           <SidebarLink
             link={{
-              label: usuario?.email ?? "Usuario no encontrado",
+              label: usuario?.name ?? "Nombre de Usuario no encontrado",
               href: "#",
               icon: (
                 <Image

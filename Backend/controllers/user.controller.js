@@ -121,13 +121,14 @@ export const loginUser = async (req, res) => {
         }
 
         // Se genera el token de autenticación para el usuario
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, email: user.email, name: user.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         //Comentario para hacer commit y quede registrada la incidencia en Jira
 
         res.cookie('token', token);
         res.status(201).json({
             id: user._id,
+            name: user.name,
             username: user.username,
             email: user.email,
             token
