@@ -76,7 +76,7 @@ export default function PatientList() {
             onChange={(e) => setSearchCC(e.target.value)}
             aria-label="Buscar por cédula de ciudadanía del paciente"
           />
-          <Button onClick={handleSearch}>
+          <Button onClick={handleSearch} style={{ cursor: 'pointer' }}>
             <Search className="h-4 w-4 mr-2" />
             Buscar
           </Button>
@@ -100,18 +100,21 @@ export default function PatientList() {
                 <TableCell>
                   <Input
                     type="file"
+                    accept=".pdf,.doc,.docx"
                     onChange={(e) => handleFileChange(e, patient.cc)}
-                    className="max-w-xs"
+                    className="max-w-xs cursor-pointer" // Cambiar el cursor al pasar sobre el input
                     aria-label={`Adjuntar archivo para ${patient.name}`}
                   />
                   {patient.file && (
-                    <p className="text-sm text-gray-500 mt-1">{patient.file.name}</p>
+                    <p className="text-sm text-green-500 mt-1">Se seleccionó 1 archivo</p>
                   )}
                 </TableCell>
                 <TableCell>
                   <Button
                     onClick={() => handleSendFile(patient)}
                     disabled={!patient.file}
+                    className={patient.file ? "bg-green-500" : ""}
+                    style={{ cursor: 'pointer' }}
                     aria-label={`Enviar archivo a ${patient.name}`}
                   >
                     Enviar Archivo
