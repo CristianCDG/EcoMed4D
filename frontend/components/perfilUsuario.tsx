@@ -1,13 +1,33 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { SidebarComponent } from "./Sidebar"; 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { LogOut, Mail, User } from "lucide-react"
 import { cn } from "../utils/cn";
+import jwt from "jsonwebtoken";
+
+
+type User = { email: string; name: string; id: string } | null;
 
 export default function ProfilePage() {
   const [open, setOpen] = useState(false);
+  const [usuario, setUsuario] = useState<User>(null);
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token"); 
+      if (token) {
+        const decodeToken: any = jwt.decode(token);
+        console.log(decodeToken)
+        if (decodeToken) {
+          const loginUser = { name: decodeToken.name, id: decodeToken.id, email: decodeToken.email};
+          setUsuario(loginUser);
+        }
+      }
+    }
+  }, []); 
+
   return (
     <div
     className={cn(
@@ -24,8 +44,10 @@ export default function ProfilePage() {
                 <AvatarImage src="https://avatars.githubusercontent.com/u/1561955?v=4" alt="Foto de perfil" />
                 <AvatarFallback>Cristian</AvatarFallback>
               </Avatar>
-              <h1 className="text-4xl font-bold">Usuario Ejemplo</h1>
-              <p className="text-xl text-muted-foreground">usuario@ejemplo.com</p>
+              <h1 className="text-4xl font-bold">Perfil del Usuario</h1>
+              <p className="text-xl text-muted-foreground">
+                {usuario?.email}
+              </p>
             </div>
             
             <div className="bg-card rounded-lg shadow-lg p-8 space-y-6">
@@ -33,14 +55,18 @@ export default function ProfilePage() {
                 <User className="w-6 h-6 text-primary" />
                 <div>
                   <h2 className="text-lg font-semibold">Nombre de Usuario</h2>
-                  <p className="text-muted-foreground">Usuario Ejemplo</p>
+                  <p className="text-muted-foreground">
+                    {usuario?.name}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <Mail className="w-6 h-6 text-primary" />
                 <div>
                   <h2 className="text-lg font-semibold">Correo Electrónico</h2>
-                  <p className="text-muted-foreground">usuario@ejemplo.com</p>
+                  <p className="text-muted-foreground">
+                    {usuario?.email}
+                  </p>
                 </div>
               </div>
             </div>
