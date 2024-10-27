@@ -119,6 +119,7 @@ export const FileUpload = ({
     }
   };
 
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     multiple: false,
     noClick: true,
