@@ -19,6 +19,7 @@ export default function ProfilePage() {
       const token = localStorage.getItem("token"); 
       if (token) {
         const decodeToken: any = jwt.decode(token);
+      
         console.log(decodeToken)
         if (decodeToken) {
           const loginUser = { name: decodeToken.name, id: decodeToken.id, email: decodeToken.email};

@@ -25,9 +25,9 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token"); 
+     
       if (token) {
         const decodeToken: any = jwt.decode(token);
-        console.log(decodeToken)
         if (decodeToken) {
           const loginUser = { name: decodeToken.name, id: decodeToken.id };
           setUsuario(loginUser);

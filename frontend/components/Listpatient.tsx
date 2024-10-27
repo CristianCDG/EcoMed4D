@@ -1,60 +1,113 @@
-"use client"
+"use client";
 import { cn } from "../utils/cn";
-import { useState, ChangeEvent } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/Input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search } from "lucide-react"
-import { SidebarComponent } from "./Sidebar"; 
+import { useState, ChangeEvent, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/Input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Search } from "lucide-react";
+import { SidebarComponent } from "./Sidebar";
+import jwt from "jsonwebtoken";
 
-interface Patient {
-  cc: string
-  name: string
-  email: string
-  file: File | null
+// Interfaz Datarow usando _id
+interface Datarow {
+  _id: string;
+  name: string;
+  email: string;
+  file: File | null;
 }
-
-const initialPatients: Patient[] = [
-  { cc: "25478659", name: 'Juan Pérez', email: 'juan@example.com', file: null },
-  { cc: "52369874", name: 'María García', email: 'maria@example.com', file: null },
-  { cc: "10236548", name: 'Carlos Rodríguez', email: 'carlos@example.com', file: null },
-]
 
 export default function PatientList() {
   const [open, setOpen] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>(initialPatients)
-  const [searchCC, setSearchCC] = useState<string>('')
-  const [filteredPatients, setFilteredPatients] = useState<Patient[]>(initialPatients)
+  const [patients, setPatients] = useState<Datarow[]>([]);
+  const [searchCC, setSearchCC] = useState<string>("");
+  const [filteredPatients, setFilteredPatients] = useState<Datarow[]>([]);
+  const [usuario, setUsuario] = useState<{ name: string; id: string } | null>(null); // Usuario autenticado
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, patientCC: string) => {
+  // Efecto para obtener los datos del paciente y validar el token
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+    
+        if (!token) {
+          console.error("No estás autenticado. Redirigiendo al login.");
+          window.location.href = "/login"; // Redirige al login si no hay token
+          return;
+        }
+
+        // Decodificar el token y establecer el usuario autenticado
+        const decodedToken: any = jwt.decode(token);
+        if (decodedToken) {
+          setUsuario({ name: decodedToken.name, id: decodedToken.id });
+        }
+
+        // Hacer la solicitud GET con las cookies incluidas
+        const response = await fetch("http://localhost:5000/api/patients/", {
+          method: "GET",
+          credentials: "include", // Incluir cookies en la solicitud
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.status === 401) {
+          console.error("Acceso no autorizado. Redirigiendo al login.");
+          window.location.href = "/login";
+          return;
+        }
+
+        const result: Datarow[] = await response.json();
+        setPatients(result);
+        setFilteredPatients(result);
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleFileChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    patientCC: string
+  ) => {
     if (e.target.files) {
-      const updatedPatients = patients.map(patient => 
-        patient.cc === patientCC ? { ...patient, file: e.target.files![0] } : patient
-      )
-      setPatients(updatedPatients)
-      setFilteredPatients(updatedPatients)
+      const updatedPatients = patients.map((patient) =>
+        patient._id === patientCC
+          ? { ...patient, file: e.target.files![0] }
+          : patient
+      );
+      setPatients(updatedPatients);
+      setFilteredPatients(updatedPatients);
     }
-  }
+  };
 
-  const handleSendFile = (patient: Patient) => {
+  const handleSendFile = (patient: Datarow) => {
     if (patient.file) {
-      // Aquí iría la lógica para enviar el archivo al paciente
-      console.log(`Enviando archivo "${patient.file.name}" a ${patient.name} (CC: ${patient.cc})`)
-      // Después de enviar, podríamos limpiar el archivo
-      const updatedPatients = patients.map(p => 
-        p.cc === patient.cc ? { ...p, file: null } : p
-      )
-      setPatients(updatedPatients)
-      setFilteredPatients(updatedPatients)
+      const updatedPatients = patients.map((p) =>
+        p._id === patient._id ? { ...p, file: null } : p
+      );
+      setPatients(updatedPatients);
+      setFilteredPatients(updatedPatients);
     } else {
-      console.log('Por favor, seleccione un archivo primero para este paciente')
+      console.log("Por favor, seleccione un archivo primero para este paciente");
     }
-  }
+  };
 
   const handleSearch = () => {
-    const filtered = patients.filter(patient => patient.cc.includes(searchCC))
-    setFilteredPatients(filtered.length > 0 ? filtered : patients)
-  }
+    const filtered = patients.filter((patient) =>
+      patient._id.includes(searchCC)
+    );
+    setFilteredPatients(filtered.length > 0 ? filtered : patients);
+  };
+
   return (
     <div
       className={cn(
@@ -67,7 +120,6 @@ export default function PatientList() {
 
       {/* Contenido principal a la derecha */}
       <div className="flex-1 container p-4 ml-auto">
-
         <div className="mb-4 flex items-center space-x-2">
           <Input
             type="text"
@@ -76,7 +128,7 @@ export default function PatientList() {
             onChange={(e) => setSearchCC(e.target.value)}
             aria-label="Buscar por cédula de ciudadanía del paciente"
           />
-          <Button onClick={handleSearch} style={{ cursor: 'pointer' }}>
+          <Button onClick={handleSearch} style={{ cursor: "pointer" }}>
             <Search className="h-4 w-4 mr-2" />
             Buscar
           </Button>
@@ -84,7 +136,6 @@ export default function PatientList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>CC</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Adjuntar Archivo</TableHead>
@@ -92,36 +143,36 @@ export default function PatientList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPatients.map((patient) => (
-              <TableRow key={patient.cc}>
-                <TableCell>{patient.cc}</TableCell>
-                <TableCell>{patient.name}</TableCell>
-                <TableCell>{patient.email}</TableCell>
-                <TableCell>
-                  <Input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => handleFileChange(e, patient.cc)}
-                    className="max-w-xs cursor-pointer" // Cambiar el cursor al pasar sobre el input
-                    aria-label={`Adjuntar archivo para ${patient.name}`}
-                  />
-                  {patient.file && (
-                    <p className="text-sm text-green-500 mt-1">Se seleccionó 1 archivo</p>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => handleSendFile(patient)}
-                    disabled={!patient.file}
-                    className={patient.file ? "bg-green-500" : ""}
-                    style={{ cursor: 'pointer' }}
-                    aria-label={`Enviar archivo a ${patient.name}`}
-                  >
-                    Enviar Archivo
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {Array.isArray(filteredPatients) &&
+              filteredPatients.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => handleFileChange(e, row._id)}
+                      className="max-w-xs cursor-pointer"
+                    />
+                    {row.file && (
+                      <p className="text-sm text-green-500 mt-1">
+                        Se seleccionó 1 archivo
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => handleSendFile(row)}
+                      disabled={!row.file}
+                      className={row.file ? "bg-green-500" : ""}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Enviar Archivo
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
