@@ -9,10 +9,13 @@ import multer from 'multer';
 import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
 import path from 'path';
+import { uploadCloudinary } from './functions/UploadCloudinary.js';
 
 // Importaciones de rutas de la API
 import userRoutes from './routes/user.routes.js'; // Se importa la ruta de usuario
 import patientRoutes from './routes/patient.routes.js'
+
+
 
 dotenv.config();
 
@@ -29,6 +32,7 @@ app.use(cookieParser());
 // Configuración de ffmpeg-static
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
+
 // Configuración de multer para la carga de archivos
 const upload = multer({ dest: 'uploads/' });
 
@@ -44,6 +48,7 @@ app.post('/convert', upload.single('file'), (req, res) => {
   ffmpeg(inputPath)
     .output(outputPath)
     .on('end', () => {
+      uploadCloudinary(outputPath)
       res.download(outputPath, (err) => {
         if (err) {
           res.status(500).json({ error: 'Error al descargar el archivo.' });
