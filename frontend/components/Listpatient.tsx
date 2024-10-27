@@ -38,10 +38,9 @@ export default function PatientList() {
     
         if (!token) {
           console.error("No estás autenticado. Redirigiendo al login.");
-          window.location.href = "/login"; // Redirige al login si no hay token
+          window.location.href = "/dashboard"; // Redirige al login si no hay token
           return;
         }
-
         // Decodificar el token y establecer el usuario autenticado
         const decodedToken: any = jwt.decode(token);
         if (decodedToken) {
@@ -49,17 +48,17 @@ export default function PatientList() {
         }
 
         // Hacer la solicitud GET con las cookies incluidas
-        const response = await fetch("http://localhost:5000/api/patients/", {
+        const response = await fetch('http://localhost:5000/api/patients', {
           method: "GET",
           credentials: "include", // Incluir cookies en la solicitud
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json",          
           },
         });
 
         if (response.status === 401) {
           console.error("Acceso no autorizado. Redirigiendo al login.");
-          window.location.href = "/login";
+          window.location.href = "/dashboard";
           return;
         }
 

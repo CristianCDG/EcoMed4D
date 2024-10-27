@@ -19,9 +19,17 @@ dotenv.config();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
+// Configuración específica de CORS
+const corsOptions = {
+  origin: 'http://localhost:3000', // Reemplaza con el origen de tu frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Permite el envío de cookies y credenciales
+  optionsSuccessStatus: 200
+};
 
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use(cors());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
