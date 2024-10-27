@@ -35,76 +35,43 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
   // Funcion que se ejecuta cuando se envia el formulario para registrarse
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setErrors({});
     setGeneralMessage('');
-
     const newErrors: Errors = {};
-
+  
     // Validar campos
     if (!name) newErrors.name = 'El nombre es obligatorio';
     if (!lastname) newErrors.lastname = 'El apellido es obligatorio';
     if (!email) newErrors.email = 'El correo es obligatorio';
     if (!password) newErrors.password = 'La contraseña es obligatoria';
-    if (!confirmPassword)
-      newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
-
-    // Validar que las contraseñas sean iguales
+    if (!confirmPassword) newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     try {
-      // Verificar si el correo ya está registrado
-      const response = await fetch(`http://localhost:5000/api/users/${email}`, {
-        method: 'GET',
+      // Enviar los datos al servidor para iniciar el proceso de registro
+      const response = await fetch('http://localhost:5000/api/users/initiate-registration', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ name, lastname, email, password }),
       });
-
+  
       if (!response.ok) {
-        if (response.status === 404) {
-          console.log('Usuario no encontrado');
-        } else {
-          throw new Error('Error al verificar el correo');
-        }
-      } else {
-        const data = await response.json();
-        if (data.exists) {
-          setErrors({
-            email: 'El correo ya está registrado. Por favor, use otro.',
-          });
-          return;
-        }
-      }
-
-      // Enviar los datos al servidor para crear el usuario
-      const createUserResponse = await fetch(
-        'http://localhost:5000/api/users/register',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, lastname, email, password }),
-        },
-      );
-
-      if (!createUserResponse.ok) {
-        const errorData = await createUserResponse.json();
+        const errorData = await response.json();
         if (errorData.message) {
           setErrors({ general: errorData.message });
         } else {
-          throw new Error('Error al crear el usuario');
+          throw new Error('Error al iniciar el proceso de registro');
         }
       } else {
-        setGeneralMessage('Registro exitoso');
+        setGeneralMessage('Registro iniciado. Por favor, verifique su correo electrónico.');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
