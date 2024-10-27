@@ -12,10 +12,12 @@ interface SignInFormDemoProps {
 
 export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Estados para manejar errores y mensajes
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 

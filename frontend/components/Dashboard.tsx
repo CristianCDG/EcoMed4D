@@ -8,6 +8,8 @@ const Dashboard = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  // Verificar si el usuario tiene un token en el local storage
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
