@@ -105,7 +105,7 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
             <Label htmlFor="firstname">Nombre</Label>
             <Input
               id="firstname"
-              placeholder="Juan Miguel"
+              placeholder="Cristian Camilo"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -117,7 +117,7 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
             <Label htmlFor="lastname">Apellido</Label>
             <Input
               id="lastname"
-              placeholder="Leon Gomez"
+              placeholder="Dominguez Gutierrez"
               type="text"
               value={lastname}
               onChange={(e) => setLastname(e.target.value)}
