@@ -54,7 +54,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         return;
       }
 
-      localStorage.setItem('token', data.token); // Guardar token en local storage
+      localStorage.setItem('token', data.token); 
       setMessage('Inicio de sesión exitoso.');
       router.push('/dashboard');
     } catch (error) {
