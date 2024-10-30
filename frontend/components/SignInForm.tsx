@@ -35,6 +35,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       }
       const response = await fetch('http://localhost:5000/api/users/login', {
         method: 'POST',
+        credentials: "include", // Incluir cookies en la solicitud
         headers: {
           'Content-Type': 'application/json',
         },
