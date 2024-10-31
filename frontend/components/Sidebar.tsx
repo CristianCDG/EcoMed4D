@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -15,8 +15,28 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "../utils/cn";
+import jwt from "jsonwebtoken";
 
-export const SidebarComponent = ({ open, setOpen }) => {
+type User = { name: string; id: string } | null;
+
+export const SidebarComponent = ({ open, setOpen }: any) => {
+  const [usuario, setUsuario] = useState<User>(null);
+
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token"); 
+     
+      if (token) {
+        const decodeToken: any = jwt.decode(token);
+        if (decodeToken) {
+          const loginUser = { name: decodeToken.name, id: decodeToken.id };
+          setUsuario(loginUser);
+        }
+      }
+    }
+  }, []); 
+
   const links = [
     {
       label: "Dashboard",
@@ -90,7 +110,7 @@ export const SidebarComponent = ({ open, setOpen }) => {
         <div>
           <SidebarLink
             link={{
-              label: "Cristian Dominguez",
+              label: usuario?.name ?? "Nombre de Usuario no encontrado",
               href: "#",
               icon: (
                 <Image
