@@ -38,13 +38,14 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
     setErrors({});
     setGeneralMessage('');
     const newErrors: Errors = {};
-  
+
     // Validar campos
     if (!name) newErrors.name = 'El nombre es obligatorio';
     if (!lastname) newErrors.lastname = 'El apellido es obligatorio';
     if (!email) newErrors.email = 'El correo es obligatorio';
     if (!password) newErrors.password = 'La contraseña es obligatoria';
-    if (!confirmPassword) newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
+    if (!confirmPassword)
+      newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
@@ -52,17 +53,20 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
       setErrors(newErrors);
       return;
     }
-  
+
     try {
       // Enviar los datos al servidor para iniciar el proceso de registro
-      const response = await fetch('http://localhost:5000/api/users/initiate-registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5000/api/users/initiate-registration',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, lastname, email, password }),
         },
-        body: JSON.stringify({ name, lastname, email, password }),
-      });
-  
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.message) {
@@ -71,7 +75,9 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
           throw new Error('Error al iniciar el proceso de registro');
         }
       } else {
-        setGeneralMessage('Registro iniciado. Por favor, verifique su correo electrónico.');
+        setGeneralMessage(
+          'Registro iniciado. Por favor, verifique su correo electrónico.',
+        );
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

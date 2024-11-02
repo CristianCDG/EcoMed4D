@@ -9,7 +9,7 @@ import TempUser from '../models/tempUser.model.js';
 
 export const createUser = async (req, res) => {
     try {
-        const { name, lastname, email, password } = req.body;
+        const { name, lastname, email, password, role = 'Paciente' } = req.body;
 
         // Se verifica si el usuario ya existe
         const existingUser = await User.findOne({ email });
@@ -22,7 +22,7 @@ export const createUser = async (req, res) => {
         const hashedPassword = await bycrypt.hash(password, salt);
 
         // Se crea el nuevo usuario
-        const newUser = new User({ name, lastname, email, password: hashedPassword });
+        const newUser = new User({ name, lastname, email, password: hashedPassword, role });
         await newUser.save();
 
         const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -33,6 +33,7 @@ export const createUser = async (req, res) => {
             name: newUser.name,
             lastname: newUser.lastname,
             email: newUser.email,
+            role: newUser.role,
         });
 
     } catch (error) {
@@ -126,7 +127,7 @@ export const loginUser = async (req, res) => {
         }
 
         // Se genera el token de autenticación para el usuario
-        const token = jwt.sign({ id: user._id, email: user.email, name: user.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         //Comentario para hacer commit y quede registrada la incidencia en Jira
 
@@ -146,74 +147,75 @@ export const loginUser = async (req, res) => {
 };
 
 export const initiateRegistration = async (req, res) => {
-  try {
-    const { name, lastname, email, password } = req.body;
+    try {
+        const { name, lastname, email, password, role = 'Paciente' } = req.body;
 
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "El correo ya está registrado. Por favor, use otro." });
+        // Verificar si el usuario ya existe
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "El correo ya está registrado. Por favor, use otro." });
+        }
+
+        // Generar un token de verificación
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
+        // Guardar el token y los datos del usuario temporalmente (puedes usar una colección temporal en la base de datos)
+        const tempUser = new TempUser({ name, lastname, email, password, role, verificationToken });
+        await tempUser.save();
+
+        // Configurar el transporte de nodemailer con OAuth2
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: "ecomed4d@gmail.com", pass: "mgvznbwlmuccelvd",
+
+            },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
+        });
+
+        const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+
+        // Enviar el correo de verificación
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Verificación de correo electrónico',
+            html: `<p>Por favor, haga clic en el siguiente enlace para verificar su correo electrónico:</p><p><a href="${verificationLink}">Verificar correo electrónico</a></p>`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: 'Correo de verificación enviado. Por favor, revise su bandeja de entrada.' });
+    } catch (error) {
+        console.error('Error al iniciar el proceso de registro:', error);
+        res.status(500).json({ message: "Error al iniciar el proceso de registro", error: error.message });
     }
-
-    // Generar un token de verificación
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
-    // Guardar el token y los datos del usuario temporalmente (puedes usar una colección temporal en la base de datos)
-    const tempUser = new TempUser({ name, lastname, email, password, verificationToken });
-    await tempUser.save();
-
-    // Configurar el transporte de nodemailer con OAuth2
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {  user: "ecomed4d@gmail.com", pass: "mgvznbwlmuccelvd" ,
-
-      },
-      tls: {
-        rejectUnauthorized: false, // Ignorar certificados autofirmados
-      },
-    });
-
-    const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
-
-    // Enviar el correo de verificación
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Verificación de correo electrónico',
-      html: `<p>Por favor, haga clic en el siguiente enlace para verificar su correo electrónico:</p><p><a href="${verificationLink}">Verificar correo electrónico</a></p>`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.status(200).json({ message: 'Correo de verificación enviado. Por favor, revise su bandeja de entrada.' });
-  } catch (error) {
-    console.error('Error al iniciar el proceso de registro:', error);
-    res.status(500).json({ message: "Error al iniciar el proceso de registro", error: error.message });
-  }
 };
 
 export const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.query;
+    try {
+        const { token } = req.query;
 
-    // Buscar el usuario temporal por el token de verificación
-    const tempUser = await TempUser.findOne({ verificationToken: token });
-    if (!tempUser) {
-      return res.status(400).json({ message: "Token de verificación inválido o expirado." });
+        // Buscar el usuario temporal por el token de verificación
+        const tempUser = await TempUser.findOne({ verificationToken: token });
+        if (!tempUser) {
+            return res.status(400).json({ message: "Token de verificación inválido o expirado." });
+        }
+
+        // Crear el nuevo usuario
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(tempUser.password, salt);
+        const newUser = new User({ name: tempUser.name, lastname: tempUser.lastname, email: tempUser.email, password: hashedPassword, role: tempUser.role });
+        await newUser.save();
+
+        // Eliminar el usuario temporal
+        await TempUser.deleteOne({ _id: tempUser._id });
+
+        res.status(201).json({ message: 'Correo verificado y usuario registrado exitosamente.' });
+    } catch (error) {
+        console.error('Error al verificar el correo electrónico:', error);
+        res.status(500).json({ message: "Error al verificar el correo electrónico", error: error.message });
     }
-
-    // Crear el nuevo usuario
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(tempUser.password, salt);
-    const newUser = new User({ name: tempUser.name, lastname: tempUser.lastname, email: tempUser.email, password: hashedPassword });
-    await newUser.save();
-
-    // Eliminar el usuario temporal
-    await TempUser.deleteOne({ _id: tempUser._id });
-
-    res.status(201).json({ message: 'Correo verificado y usuario registrado exitosamente.' });
-  } catch (error) {
-    console.error('Error al verificar el correo electrónico:', error);
-    res.status(500).json({ message: "Error al verificar el correo electrónico", error: error.message });
-  }
 };
