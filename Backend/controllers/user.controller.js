@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import TempUser from '../models/tempUser.model.js';
-
+import ResetPasswordUser from '../models/resetPasswordUserModel.js';
 
 export const createUser = async (req, res) => {
     try {
@@ -218,5 +218,104 @@ export const verifyEmail = async (req, res) => {
     } catch (error) {
         console.error('Error al verificar el correo electrónico:', error);
         res.status(500).json({ message: "Error al verificar el correo electrónico", error: error.message });
+    }
+};
+
+export const sendPasswordResetEmail = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'El correo no está registrado.' });
+        }
+
+        // Generar el token una sola vez
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Guardar el token en la base de datos
+        const resetPasswordUser = new ResetPasswordUser({
+            email: user.email,
+            resetPasswordToken: resetToken,
+            resetPasswordExpires: Date.now() + 3600000 // 1 hora
+        });
+        await resetPasswordUser.save();
+
+        // Configurar el transporte de nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+            tls: {
+                rejectUnauthorized: false,
+            },
+        });
+
+        // Crear el enlace de restablecimiento de contraseña
+        const resetLink = `http://localhost:3000/ResetPassword?token=${resetToken}`;
+
+        // Configurar las opciones del correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Restablecimiento de contraseña',
+            html: `<p>Por favor, haga clic en el siguiente enlace para restablecer su contraseña:</p><p><a href="${resetLink}">Restablecer contraseña</a></p>`,
+        };
+
+        // Enviar el correo
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: 'Correo de restablecimiento de contraseña enviado. Por favor, revise su bandeja de entrada.' });
+    } catch (error) {
+        console.error('Error al enviar el correo de restablecimiento de contraseña:', error);
+        res.status(500).json({ message: 'Error al enviar el correo de restablecimiento de contraseña', error: error.message });
+    }
+};
+
+
+
+export const resetPassword = async (req, res) => {
+    const { token, password } = req.body;
+
+    console.log('Token recibido:', token);
+    console.log('Contraseña recibida:', password);
+
+    if (!token) {
+        return res.status(400).json({ message: 'El token es requerido.' });
+    }
+
+    if (!password) {
+        return res.status(400).json({ message: 'La contraseña no puede estar vacía.' });
+    }
+
+    try {
+        const resetPasswordUser = await ResetPasswordUser.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!resetPasswordUser) {
+            console.log('Usuario no encontrado o token expirado');
+            return res.status(400).json({ message: 'Token no válido o expirado.' });
+        }
+
+        const user = await User.findOne({ email: resetPasswordUser.email });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        await user.save();
+
+        await ResetPasswordUser.deleteOne({ _id: resetPasswordUser._id });
+
+        console.log('Contraseña restablecida con éxito para el usuario:', user._id);
+        res.status(200).json({ message: 'Contraseña restablecida con éxito.' });
+    } catch (error) {
+        console.error('Error al restablecer la contraseña:', error);
+        res.status(500).json({ message: 'Error al restablecer la contraseña', error: error.message });
     }
 };
