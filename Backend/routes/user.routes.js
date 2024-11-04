@@ -1,11 +1,14 @@
 import { Router } from "express";
-import { createUser, getUserbyEmail, getUsers, updateUser, deleteUser, loginUser, initiateRegistration, verifyEmail } from "../controllers/user.controller.js";
+import { resetPassword, createUser, getUserbyEmail, getUsers, updateUser, deleteUser, loginUser, initiateRegistration, verifyEmail, sendPasswordResetEmail } from "../controllers/user.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 
 router.post('/initiate-registration', initiateRegistration); // Iniciar el proceso de registro
 router.get('/verify-email', verifyEmail); // Verificar el token de correo electrónico
+
+router.post('/forgot-password', sendPasswordResetEmail); // Enviar correo electrónico de restablecimiento de contraseña
+router.post('/reset-password', resetPassword); // Restablecer la contraseña
 
 router.post('/register', createUser); // Se crea el usuario
 router.get('/:email', getUserbyEmail); // Se obtiene el usuario por email

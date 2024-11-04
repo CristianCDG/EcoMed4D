@@ -1,10 +1,10 @@
-'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Label } from './ui/label';
-import { Input } from './ui/Input';
-import { cn } from '../utils/cn';
-import { IconBrandGoogle } from '@tabler/icons-react';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Label } from "./ui/label";
+import { Input } from "./ui/Input";
+import { cn } from "../utils/cn";
+import { IconBrandGoogle } from "@tabler/icons-react";
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -13,31 +13,68 @@ interface SignInFormDemoProps {
 export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Estados para manejar errores y mensajes
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   // Funcion que se ejecuta cuando se envia el formulario para registrarse
 
+  const handleForgotPassword = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/users/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(
+          data.message ||
+            "Error al enviar el correo de restablecimiento de contraseña."
+        );
+        return;
+      }
+
+      setMessage(
+        "Correo de restablecimiento de contraseña enviado. Por favor, revise su bandeja de entrada."
+      );
+    } catch (error) {
+      console.error(
+        "Error al enviar el correo de restablecimiento de contraseña: ",
+        error
+      );
+      setError(
+        "Error al enviar el correo de restablecimiento de contraseña. Inténtelo de nuevo más tarde."
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     try {
       if (password !== confirmPassword) {
-        setError('Las contraseñas no coinciden.');
+        setError("Las contraseñas no coinciden.");
         return;
       }
-      const response = await fetch('http://localhost:5000/api/users/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
         credentials: "include", // Incluir cookies en la solicitud
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -46,21 +83,21 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
       if (!response.ok) {
         if (response.status === 404) {
-          setError('El correo no está registrado.');
+          setError("El correo no está registrado.");
         } else if (response.status === 400) {
-          setError('Algunos de los datos es incorrecto, verifique por favor');
+          setError("Algunos de los datos es incorrecto, verifique por favor");
         } else {
-          setError('Error al iniciar sesión. Inténtelo de nuevo más tarde.');
+          setError("Error al iniciar sesión. Inténtelo de nuevo más tarde.");
         }
         return;
       }
 
-      localStorage.setItem('token', data.token); 
-      setMessage('Inicio de sesión exitoso.');
-      router.push('/dashboard');
+      localStorage.setItem("token", data.token);
+      setMessage("Inicio de sesión exitoso.");
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Error al iniciar sesión: ', error);
-      setError('Error al iniciar sesión. Inténtelo de nuevo más tarde.');
+      console.error("Error al iniciar sesión: ", error);
+      setError("Error al iniciar sesión. Inténtelo de nuevo más tarde.");
     }
   };
 
@@ -124,7 +161,9 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
-          onClick={() => router.push('/forgotPassword')}
+          type="button"
+          onClick={handleForgotPassword}
+          
         >
           ¿Contraseña olvidada? &rarr;
           <BottomGradient />
@@ -155,7 +194,7 @@ const LabelInputContainer = ({
   className?: string;
 }) => {
   return (
-    <div className={cn('flex flex-col space-y-2 w-full', className)}>
+    <div className={cn("flex flex-col space-y-2 w-full", className)}>
       {children}
     </div>
   );
