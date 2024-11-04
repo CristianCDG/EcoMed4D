@@ -15,8 +15,6 @@ import { uploadCloudinary } from './functions/UploadCloudinary.js';
 import userRoutes from './routes/user.routes.js'; // Se importa la ruta de usuario
 import patientRoutes from './routes/patient.routes.js'
 
-
-
 dotenv.config();
 
 const app = express();
@@ -39,7 +37,6 @@ app.use(cookieParser());
 
 // Configuración de ffmpeg-static
 ffmpeg.setFfmpegPath(ffmpegStatic);
-
 
 // Configuración de multer para la carga de archivos
 const upload = multer({ dest: 'uploads/' });
