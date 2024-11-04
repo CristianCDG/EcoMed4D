@@ -32,6 +32,10 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
   const [errors, setErrors] = useState<Errors>({});
   const [generalMessage, setGeneralMessage] = useState('');
 
+ 
+ 
+  const emailDominio = /^[\w.-]+@[a-zA-Z\d-]+\.[a-zA-Z]{2,}$/; // Expresión regular para correos válidos
+
   // Funcion que se ejecuta cuando se envia el formulario para registrarse
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,7 +46,11 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
     // Validar campos
     if (!name) newErrors.name = 'El nombre es obligatorio';
     if (!lastname) newErrors.lastname = 'El apellido es obligatorio';
-    if (!email) newErrors.email = 'El correo es obligatorio';
+    if (!email) {
+      newErrors.email = 'El correo es obligatorio';
+    } else if (!emailDominio.test(email)) {
+      newErrors.email = 'El formato del correo es inválido';
+    }
     if (!password) newErrors.password = 'La contraseña es obligatoria';
     if (!confirmPassword)
       newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
