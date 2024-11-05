@@ -43,7 +43,10 @@ export const createPatient = async (req, res) => {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
-            }
+            },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
         });
 
         // Configuración del correo
@@ -95,6 +98,9 @@ export const sendFileEmail = async (req, res) => {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
+            },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
             },
         });
 
