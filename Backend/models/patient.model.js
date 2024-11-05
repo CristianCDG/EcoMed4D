@@ -13,6 +13,10 @@ const patientSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    fileUrls: {
+        type: [String],  
+        required: false, 
+    },
     password: {
         type: String,
         required: true,

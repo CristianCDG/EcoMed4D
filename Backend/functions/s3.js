@@ -25,7 +25,7 @@ export async function uploadFile(file) {
     return result;
 }
 
-export async function uploadFiles(files) {
+export async function uploadFiles(files, patientId) {
     const uploadResults = [];
 
     for (const file of files) {
@@ -40,7 +40,8 @@ export async function uploadFiles(files) {
         try {
             const result = await client.send(command);
             console.log(result);
-            uploadResults.push(result);
+            const fileUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_BUCKET_REGION}.amazonaws.com/${file.originalname}`;
+            uploadResults.push(fileUrl);
         } catch (error) {
             console.error('Error al subir el archivo:', error);
             throw new Error('Error al subir uno o más archivos');
