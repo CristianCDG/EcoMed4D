@@ -67,6 +67,13 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       ),
     },
     {
+      label: "Administración",
+      href: "/admin",
+      icon: (
+        <IconUserHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
       label: "Pacientes",
       href: "/patients",
       icon: (
