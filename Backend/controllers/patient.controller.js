@@ -43,7 +43,10 @@ export const createPatient = async (req, res) => {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
-            }
+            },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
         });
 
         // Configuración del correo
@@ -82,9 +85,9 @@ export const deletePatient = async (req, res) => {
 
 export const sendFileEmail = async (req, res) => {
     const { patientId, patientName, patientEmail } = req.body;
-    const file = req.file;
+    const files = req.files;
 
-    if (!patientId || !file || !patientName || !patientEmail) {
+    if (!patientId || !files || !patientName || !patientEmail) {
         return res.status(400).json({ message: 'Faltan datos necesarios' });
     }
 
@@ -96,6 +99,9 @@ export const sendFileEmail = async (req, res) => {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
         });
 
         // Configura el correo electrónico
@@ -105,23 +111,21 @@ export const sendFileEmail = async (req, res) => {
             subject: 'Archivo adjunto',
             html: `
                 <p>Hola <strong>${patientName}</strong>,</p>
-                <p>Por favor, encuentra el archivo adjunto.</p>
+                <p>Por favor, encuentra el/los archivo(s) adjunto(s).</p>
                 <p>Saludos,</p>
                 <p><strong>Equipo de EcoMed4D</strong></p>
             `,
-            attachments: [
-                {
-                    filename: file.originalname,
-                    path: file.path,
-                },
-            ],
+            attachments: files.map(file => ({
+                filename: file.originalname,
+                path: file.path,
+            })),
         };
 
         // Envía el correo electrónico
         await transporter.sendMail(mailOptions);
 
-        // Elimina el archivo después de enviarlo
-        fs.unlinkSync(file.path);
+        // Elimina los archivos después de enviarlos
+        files.forEach(file => fs.unlinkSync(file.path));
 
         res.status(200).json({ message: 'Correo enviado exitosamente' });
     } catch (error) {
