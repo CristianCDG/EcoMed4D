@@ -22,7 +22,7 @@ interface Datarow {
   _id: string;
   name: string;
   email: string;
-  file: File | null;
+  files: File[];
 }
 
 export default function PatientList() {
@@ -67,8 +67,13 @@ export default function PatientList() {
         }
 
         const result: Datarow[] = await response.json();
-        setPatients(result);
-        setFilteredPatients(result);
+        // Asegurarse de que cada paciente tenga un array de archivos
+        const patientsWithFiles = result.map((patient) => ({
+          ...patient,
+          files: patient.files || [],
+        }));
+        setPatients(patientsWithFiles);
+        setFilteredPatients(patientsWithFiles);
       } catch (error) {
         console.error('Error al obtener los datos:', error);
       }
@@ -82,9 +87,16 @@ export default function PatientList() {
     patientCC: string,
   ) => {
     if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      if (selectedFiles.length > 2) {
+        toast.warn('Solo puedes seleccionar hasta 2 archivos', {
+          position: 'top-right',
+        });
+        return;
+      }
       const updatedPatients = patients.map((patient) =>
         patient._id === patientCC
-          ? { ...patient, file: e.target.files![0] }
+          ? { ...patient, files: selectedFiles }
           : patient,
       );
       setPatients(updatedPatients);
@@ -92,11 +104,24 @@ export default function PatientList() {
     }
   };
 
+  const handleRemoveFile = (patientCC: string, fileIndex: number) => {
+    const updatedPatients = patients.map((patient) =>
+      patient._id === patientCC
+        ? {
+            ...patient,
+            files: patient.files.filter((_, index) => index !== fileIndex),
+          }
+        : patient,
+    );
+    setPatients(updatedPatients);
+    setFilteredPatients(updatedPatients);
+  };
+
   const handleSendFile = async (patient: Datarow) => {
-    if (patient.file) {
+    if (patient.files.length > 0) {
       try {
         const formData = new FormData();
-        formData.append('file', patient.file);
+        patient.files.forEach((file) => formData.append('files', file));
         formData.append('patientId', patient._id);
         formData.append('patientName', patient.name);
         formData.append('patientEmail', patient.email);
@@ -115,7 +140,7 @@ export default function PatientList() {
             position: 'top-right',
           });
           const updatedPatients = patients.map((p) =>
-            p._id === patient._id ? { ...p, file: null } : p,
+            p._id === patient._id ? { ...p, files: [] } : p,
           );
           setPatients(updatedPatients);
           setFilteredPatients(updatedPatients);
@@ -176,8 +201,8 @@ export default function PatientList() {
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Adjuntar Archivo</TableHead>
-              <TableHead>Enviar Archivo</TableHead>
+              <TableHead>Adjuntar Archivos</TableHead>
+              <TableHead>Enviar Archivos</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -189,24 +214,41 @@ export default function PatientList() {
                   <TableCell>
                     <Input
                       type="file"
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf,.doc,.docx,.mp4,.mvk,.avi,.png,.jpg,.jpeg"
                       onChange={(e) => handleFileChange(e, row._id)}
                       className="max-w-xs cursor-pointer"
+                      multiple
                     />
-                    {row.file && (
-                      <p className="text-sm text-green-500 mt-1">
-                        Se seleccionó 1 archivo
-                      </p>
+                    {row.files.length > 0 && (
+                      <div className="mt-1">
+                        {row.files.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2"
+                          >
+                            <p className="text-sm text-green-500">
+                              {file.name}
+                            </p>
+                            <Button
+                              onClick={() => handleRemoveFile(row._id, index)}
+                              className="text-red-500"
+                              style={{ cursor: 'pointer' }}
+                            >
+                              Eliminar
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell>
                     <Button
                       onClick={() => handleSendFile(row)}
-                      disabled={!row.file}
-                      className={row.file ? 'bg-green-500' : ''}
+                      disabled={row.files.length === 0}
+                      className={row.files.length > 0 ? 'bg-green-500' : ''}
                       style={{ cursor: 'pointer' }}
                     >
-                      Enviar Archivo
+                      Enviar Archivos
                     </Button>
                   </TableCell>
                 </TableRow>
