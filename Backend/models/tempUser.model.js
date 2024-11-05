@@ -7,7 +7,7 @@ const tempUserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, required: true },
   verificationToken: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now, expires: '1h' }, // El documento expirará en 1 hora
+  createdAt: { type: Date, default: Date.now, expires: '5m' }, // El documento expirará en 5 minutos
 });
 
 const TempUser = mongoose.model('TempUser', tempUserSchema);

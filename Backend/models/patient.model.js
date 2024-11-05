@@ -5,6 +5,10 @@ const patientSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    lastname: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         required: true,
@@ -17,9 +21,13 @@ const patientSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    role: {
+        type: String,
+        default: 'Paciente'
     }
- }, {
-        timestamps: true
+}, {
+    timestamps: true
 });
 
 export default mongoose.model('Patient', patientSchema);

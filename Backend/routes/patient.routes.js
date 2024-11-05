@@ -8,6 +8,6 @@ const upload = multer({ dest: 'uploads/' });
 
 router.get('/', authRequired, getPatients);
 router.post('/', authRequired, createPatient);
-router.post('/send-file', authRequired, upload.single('file'), sendFileEmail);
+router.post('/send-file', authRequired, upload.array('files', 2), sendFileEmail);
 
 export default router;

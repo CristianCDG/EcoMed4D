@@ -3,6 +3,8 @@ import { cn } from '../utils/cn';
 import { useState, ChangeEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Table,
   TableBody,
@@ -109,21 +111,30 @@ export default function PatientList() {
         );
 
         if (response.ok) {
-          console.log('Archivo enviado exitosamente');
+          toast.success('Archivo enviado exitosamente', {
+            position: 'top-right',
+          });
           const updatedPatients = patients.map((p) =>
             p._id === patient._id ? { ...p, file: null } : p,
           );
           setPatients(updatedPatients);
           setFilteredPatients(updatedPatients);
         } else {
-          console.error('Error al enviar el archivo');
+          toast.error('Error al enviar el archivo', {
+            position: 'top-right',
+          });
         }
       } catch (error) {
-        console.error('Error al enviar el archivo:', error);
+        toast.error('Error al enviar el archivo', {
+          position: 'top-right',
+        });
       }
     } else {
-      console.log(
+      toast.warn(
         'Por favor, seleccione un archivo primero para este paciente',
+        {
+          position: 'top-right',
+        },
       );
     }
   };
@@ -203,6 +214,7 @@ export default function PatientList() {
           </TableBody>
         </Table>
       </div>
+      <ToastContainer />
     </div>
   );
 }

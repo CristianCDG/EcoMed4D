@@ -14,26 +14,62 @@ export const getPatients = async (req, res) => {
 };
 
 export const createPatient = async (req, res) => {
-    const { name, email, password } = req.body;
+    try {
+        const { name, lastname, email, password } = req.body;
 
-    const existingPatient = await Patient.findOne({ email });
-    if (existingPatient) {
-        return res.status(400).json({ message: "El paciente ya existe" });
+        const existingPatient = await Patient.findOne({ email });
+        if (existingPatient) {
+            return res.status(400).json({ message: "El paciente ya existe" });
+        }
+
+        // Se encripta la contraseña del paciente y se crea el nuevo usuario
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newPatient = new Patient({
+            name,
+            lastname,
+            email,
+            password: hashedPassword,
+            medico: req.user.id,
+            role: 'Paciente'
+        });
+
+        const savedPatient = await newPatient.save();
+
+        // Configuración del transporte de correo
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
+        });
+
+        // Configuración del correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Confirmación de registro',
+            text: `Querido paciente del médico ${req.user.name},\n\nSe ha creado su cuenta en la aplicación de manera correcta.\n\nEstos son sus datos:\nNombre: ${name} ${lastname}\nEmail: ${email}\n\nSaludos,\nEquipo de EcoMed4D`
+        };
+
+        // Enviar el correo
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error al enviar el correo:', error);
+            } else {
+                console.log('Correo enviado:', info.response);
+            }
+        });
+
+        res.status(201).json(savedPatient);
+    } catch (error) {
+        res.status(500).json({ message: "Error al crear el paciente", error });
     }
-
-    // Se encripta la contraseña del paciente y se crea el nuevo usuario
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newPatient = new Patient({
-        name,
-        email,
-        password: hashedPassword,
-        medico: req.user.id
-    });
-
-    const savedPatient = await newPatient.save();
-    res.json(savedPatient);
 };
 
 export const deletePatient = async (req, res) => {
@@ -49,9 +85,9 @@ export const deletePatient = async (req, res) => {
 
 export const sendFileEmail = async (req, res) => {
     const { patientId, patientName, patientEmail } = req.body;
-    const file = req.file;
+    const files = req.files;
 
-    if (!patientId || !file || !patientName || !patientEmail) {
+    if (!patientId || !files || !patientName || !patientEmail) {
         return res.status(400).json({ message: 'Faltan datos necesarios' });
     }
 
@@ -63,6 +99,9 @@ export const sendFileEmail = async (req, res) => {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
+            tls: {
+                rejectUnauthorized: false, // Ignorar certificados autofirmados
+            },
         });
 
         // Configura el correo electrónico
@@ -70,20 +109,23 @@ export const sendFileEmail = async (req, res) => {
             from: process.env.EMAIL_USER,
             to: patientEmail,
             subject: 'Archivo adjunto',
-            text: `Hola ${patientName},\n\nPor favor, encuentra el archivo adjunto.`,
-            attachments: [
-                {
-                    filename: file.originalname,
-                    path: file.path,
-                },
-            ],
+            html: `
+                <p>Hola <strong>${patientName}</strong>,</p>
+                <p>Por favor, encuentra el/los archivo(s) adjunto(s).</p>
+                <p>Saludos,</p>
+                <p><strong>Equipo de EcoMed4D</strong></p>
+            `,
+            attachments: files.map(file => ({
+                filename: file.originalname,
+                path: file.path,
+            })),
         };
 
         // Envía el correo electrónico
         await transporter.sendMail(mailOptions);
 
-        // Elimina el archivo después de enviarlo
-        fs.unlinkSync(file.path);
+        // Elimina los archivos después de enviarlos
+        files.forEach(file => fs.unlinkSync(file.path));
 
         res.status(200).json({ message: 'Correo enviado exitosamente' });
     } catch (error) {
