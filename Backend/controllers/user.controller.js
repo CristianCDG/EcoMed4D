@@ -148,7 +148,7 @@ export const loginUser = async (req, res) => {
 
 export const initiateRegistration = async (req, res) => {
     try {
-        const { name, lastname, email, password, role = 'Paciente' } = req.body;
+        const { name, lastname, email, password, role = 'Medico' } = req.body;
 
         // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ email });
