@@ -59,17 +59,31 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       );
     }
   };
-
+  const emailDominio = /^[\w.-]+@[a-zA-Z\d-]+\.[a-zA-Z]{2,}$/; // Expresión regular para correos válidos
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setMessage("");
 
+    if (!email) {
+      setError("El correo es obligatorio.");
+      return;
+    } else if (!emailDominio.test(email)) {
+      setError("El formato del correo es inválido.");
+      return;
+    }
+    
+    if (!password) {
+      setError("La contraseña es obligatoria.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
     try {
-      if (password !== confirmPassword) {
-        setError("Las contraseñas no coinciden.");
-        return;
-      }
       const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         credentials: "include", // Incluir cookies en la solicitud

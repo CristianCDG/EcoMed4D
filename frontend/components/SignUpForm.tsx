@@ -32,6 +32,11 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
   const [errors, setErrors] = useState<Errors>({});
   const [generalMessage, setGeneralMessage] = useState('');
 
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+ 
+  const emailDominio = /^[\w.-]+@[a-zA-Z\d-]+\.[a-zA-Z]{2,}$/; // Expresión regular para correos válidos
+
   // Funcion que se ejecuta cuando se envia el formulario para registrarse
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,12 +47,20 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
     // Validar campos
     if (!name) newErrors.name = 'El nombre es obligatorio';
     if (!lastname) newErrors.lastname = 'El apellido es obligatorio';
-    if (!email) newErrors.email = 'El correo es obligatorio';
+    if (!email) {
+      newErrors.email = 'El correo es obligatorio';
+    } else if (!emailDominio.test(email)) {
+      newErrors.email = 'El formato del correo es inválido';
+    }
+
     if (!password) newErrors.password = 'La contraseña es obligatoria';
     if (!confirmPassword)
       newErrors.confirmPassword = 'Confirmar contraseña es obligatorio';
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    }
+    if (!acceptPolicy) {
+      newErrors.general = 'Debe aceptar la política de privacidad';
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -76,7 +89,7 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
         }
       } else {
         setGeneralMessage(
-          'Registro iniciado. Por favor, verifique su correo electrónico.',
+          'Registro exitoso. Por favor, verifique su correo electrónico.',
         );
       }
     } catch (error: unknown) {
@@ -183,7 +196,134 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
         )}
 
         {errors.general && <p style={{ color: 'red' }}>{errors.general}</p>}
+        <div className="mb-4">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={acceptPolicy}
+              onChange={(e) => setAcceptPolicy(e.target.checked)}
+              className="form-checkbox"
+            />
+            <span className="text-sm text-neutral-600 dark:text-neutral-300">
+              He leido y acepto la{' '}
+              <button
+                type="button"
+                onClick={() => setShowPolicyModal(true)}
+                className="text-blue-500 underline"
+              >
+                Política de Tratamientos y condiciones de uso
+              </button>
+            </span>
+          </label>
+        </div>
+        {showPolicyModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full overflow-y-auto max-h-[80vh]">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                Política de Tratamiento de Datos Personales y Condiciones de Uso
+              </h2>
+              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-4">
+                <p>
+                  Bienvenido a EcoMed4D. A continuación, se describe nuestra
+                  política de tratamiento de datos personales y condiciones de
+                  uso para los usuarios de nuestra aplicación.
+                </p>
 
+                <h3 className="font-semibold">1. Recolección de Datos</h3>
+                <p>
+                  EcoMed4D recolecta y almacena los siguientes datos de los
+                  médicos usuarios de la plataforma:
+                  <ul className="list-disc list-inside ml-4">
+                    <li>Nombre, apellido, correo electrónico, y contraseña.</li>
+                    <li>
+                      Datos de pacientes creados en la aplicación: nombre,
+                      apellido, y archivos asociados (por ejemplo, videos de
+                      ecografías y otros documentos).
+                    </li>
+                  </ul>
+                </p>
+
+                <h3 className="font-semibold">2. Uso de los Datos</h3>
+                <p>
+                  Los datos recopilados en EcoMed4D se utilizarán para:
+                  <ul className="list-disc list-inside ml-4">
+                    <li>Permitir el registro de médicos en la aplicación.</li>
+                    <li>
+                      Administrar y organizar el perfil y los datos de los
+                      pacientes.
+                    </li>
+                    <li>
+                      Facilitar el envío de archivos médicos a las direcciones
+                      de correo electrónico proporcionadas.
+                    </li>
+                  </ul>
+                </p>
+                <p>
+                  Los pacientes no tendrán acceso a la plataforma ni a sus
+                  propios perfiles, ya que el médico es quien maneja y
+                  administra esta información.
+                </p>
+
+                <h3 className="font-semibold">
+                  3. Almacenamiento y Seguridad de los Datos
+                </h3>
+                <p>
+                  EcoMed4D se compromete a proteger los datos personales y
+                  sensibles que almacena, implementando medidas de seguridad
+                  avanzadas para prevenir el acceso no autorizado, la
+                  alteración, divulgación o destrucción de la información. La
+                  información de los pacientes y médicos se almacena en
+                  servidores seguros y se mantendrá por un período de tiempo
+                  adecuado para cumplir con las finalidades descritas en esta
+                  política.
+                </p>
+
+                <h3 className="font-semibold">4. Derechos del Usuario (Médico)</h3>
+                <p>
+                  Los médicos usuarios de EcoMed4D tienen los siguientes
+                  derechos:
+                  <ul className="list-disc list-inside ml-4">
+                    <li>
+                      <strong>Acceso y corrección</strong>: Pueden revisar y
+                      actualizar sus datos personales en cualquier momento.
+                    </li>
+                    <li>
+                      <strong>Supresión de datos</strong>: Tienen derecho a
+                      solicitar la eliminación de sus datos personales y los
+                      datos de sus pacientes de la plataforma, sujeto a las
+                      normativas legales vigentes.
+                    </li>
+                    <li>
+                      <strong>Revocación del consentimiento</strong>: En
+                      cualquier momento, pueden revocar el consentimiento para
+                      el tratamiento de sus datos, lo que puede afectar su
+                      capacidad para utilizar la plataforma.
+                    </li>
+                  </ul>
+                </p>
+
+                <h3 className="font-semibold">5. Aceptación de la Política</h3>
+                <p>
+                  Al utilizar EcoMed4D, el médico confirma que ha leído y acepta
+                  esta Política de Tratamiento de Datos Personales y Condiciones
+                  de Uso. Si no está de acuerdo con alguno de los términos aquí
+                  descritos, no debe utilizar la plataforma.
+                </p>
+                <p>
+                  Para cualquier consulta o ejercicio de derechos sobre los
+                  datos, puede ponerse en contacto con nosotros en la dirección
+                  de soporte proporcionada en la plataforma.
+                </p>
+              </div>
+              <button
+                className="bg-blue-500 text-white mt-4 px-4 py-2 rounded hover:bg-blue-600"
+                onClick={() => setShowPolicyModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
