@@ -319,3 +319,26 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Error al restablecer la contraseña', error: error.message });
     }
 };
+
+
+
+//Zona de funciones de administrador
+
+export const updateUserRole = async (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+  
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      user.role = role;
+      await user.save();
+  
+      res.status(200).json({ message: 'Rol actualizado exitosamente' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error al actualizar el rol', error });
+    }
+  };
