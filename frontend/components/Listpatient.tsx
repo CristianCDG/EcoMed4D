@@ -28,7 +28,7 @@ interface Datarow {
 export default function PatientList() {
   const [open, setOpen] = useState(false);
   const [patients, setPatients] = useState<Datarow[]>([]);
-  const [searchCC, setSearchCC] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredPatients, setFilteredPatients] = useState<Datarow[]>([]);
   const [usuario, setUsuario] = useState<{ name: string; id: string } | null>(
     null,
@@ -164,32 +164,37 @@ export default function PatientList() {
     }
   };
 
+  useEffect(() => {
+    if (searchTerm === '') {
+      setFilteredPatients(patients); // Restablece la lista completa
+    }
+  }, [searchTerm, patients]);
+
   const handleSearch = () => {
+    if (searchTerm.trim() === '') {
+      setFilteredPatients(patients); // Muestra todos si el término de búsqueda está vacío
+      return;
+    }
     const filtered = patients.filter((patient) =>
-      patient._id.includes(searchCC),
+      patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredPatients(filtered.length > 0 ? filtered : patients);
+    setFilteredPatients(filtered);
   };
 
   return (
-    <div
-      className={cn(
-        'rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden',
-        'h-screen w-full',
-      )}
-    >
-      {/* Sidebar a la izquierda */}
+    <div className="rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden h-screen w-full">
+
       <SidebarComponent open={open} setOpen={setOpen} />
 
-      {/* Contenido principal a la derecha */}
       <div className="flex-1 container p-4 ml-auto">
         <div className="mb-4 flex items-center space-x-2">
-          <Input
+        <Input
             type="text"
-            placeholder="Buscar por CC del paciente"
-            value={searchCC}
-            onChange={(e) => setSearchCC(e.target.value)}
-            aria-label="Buscar por cédula de ciudadanía del paciente"
+            placeholder="Buscar por nombre o email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Buscar por nombre o email"
           />
           <Button onClick={handleSearch} style={{ cursor: 'pointer' }}>
             <Search className="h-4 w-4 mr-2" />

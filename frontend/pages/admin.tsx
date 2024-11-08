@@ -87,7 +87,8 @@ export default function Admin() {
   };
 
   return (
-    <div className="rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden h-screen w-full">
+  <div className="rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden h-screen w-full">
+
       <SidebarComponent open={open} setOpen={setOpen} />
       <div className="flex-1 container p-4 ml-auto">
         <div className="mb-4 flex items-center space-x-2">
@@ -98,7 +99,7 @@ export default function Admin() {
             onChange={(e) => setSearchTerm(e.target.value)}
             aria-label="Buscar por nombre o email"
           />
-          <Button onClick={handleSearch} style={{ cursor: 'pointer' }}>
+          <Button onClick={handleSearch}  style={{ cursor: 'pointer' }}>
             <Search className="h-4 w-4 mr-2" />
             Buscar
           </Button>
