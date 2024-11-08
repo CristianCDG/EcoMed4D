@@ -1,6 +1,7 @@
 import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3'
 import { AWS_BUCKET_NAME, AWS_BUCKET_REGION, AWS_PUBLIC_KEY, AWS_SECRET_KEY } from '../config.js'
 import fs from 'fs';
+import mime from 'mime-types';
 
 
 const client = new S3Client({
@@ -12,35 +13,27 @@ const client = new S3Client({
     }  
 })
 
-export async function uploadFile(file) {
-    const stream = fs.createReadStream(file.path)
-    const uploadParams = {
-        Bucket: AWS_BUCKET_NAME,
-        Key: file.name,
-        Body: stream
-    }
-    const command = new PutObjectCommand(uploadParams);
-    const result = await client.send(command);
-    console.log(result);
-    return result;
-}
-
 export async function uploadFiles(files, patientId) {
     const uploadResults = [];
 
     for (const file of files) {
         const stream = fs.createReadStream(file.path);
+        const contentType = mime.lookup(file.originalname) || 'application/octet-stream'; // Detecta el tipo de contenido
+        
         const uploadParams = {
             Bucket: AWS_BUCKET_NAME,
-            Key: file.originalname, // Usar originalname para mantener el nombre
-            Body: stream
+            Key: file.originalname,
+            Body: stream,
+            ContentType: contentType // Establece el tipo de contenido
         };
+
         const command = new PutObjectCommand(uploadParams);
-        
+
         try {
             const result = await client.send(command);
             console.log(result);
             const fileUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_BUCKET_REGION}.amazonaws.com/${file.originalname}`;
+            console.log(fileUrl);
             uploadResults.push(fileUrl);
         } catch (error) {
             console.error('Error al subir el archivo:', error);
