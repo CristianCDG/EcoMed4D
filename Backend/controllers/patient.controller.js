@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import { uploadFiles } from "../functions/s3.js";
 
 export const getPatients = async (req, res) => {
     const patients = await Patient.find({
@@ -92,6 +93,14 @@ export const sendFileEmail = async (req, res) => {
     }
 
     try {
+        // Almacenar archivos
+        const fileUrls = await uploadFiles(files, patientId);
+
+         // Actualizar el paciente con las URLs en la base de datos
+         await Patient.findByIdAndUpdate(patientId, {
+            $push: { fileUrls: { $each: fileUrls } } // Agrega las URLs al arreglo existente
+        });
+        
         // Configura el transportador de nodemailer
         const transporter = nodemailer.createTransport({
             service: 'gmail',
