@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Label } from './ui/label';
 import { Input } from './ui/Input';
@@ -30,6 +30,17 @@ export default function RegisterPatientComponent() {
   const [generalMessage, setGeneralMessage] = useState('');
 
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Debe iniciar sesión para acceder a esta página.');
+        router.push('/');
+        return;
+      }
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

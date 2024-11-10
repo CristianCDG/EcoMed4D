@@ -42,7 +42,7 @@ export default function PatientList() {
 
         if (!token) {
           console.error('No estás autenticado. Redirigiendo al login.');
-          window.location.href = '/dashboard'; // Redirige al login si no hay token
+          window.location.href = '/';
           return;
         }
         // Decodificar el token y establecer el usuario autenticado
