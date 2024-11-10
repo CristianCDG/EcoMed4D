@@ -37,6 +37,24 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
     }
   }, []); 
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/users/logout" , {
+        method: "POST",
+        credentials: "include",
+      })
+      if (response.ok) {
+        setUsuario(null);
+        window.location.href = "/"
+      } else {
+        console.log("Error al cerrar sesion")
+      }
+
+    }catch (error) {
+      console.log(error)
+    }
+  };
+
   const links = [
     {
       label: "Dashboard",
@@ -96,11 +114,12 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
     },
     {
       label: "Salír",
-      href: "#",
+      href: "/",
       icon: (
         <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-    },
+      onClick:handleLogout,
+    },
   ];
 
   return (
@@ -110,9 +129,9 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
           <Logo />
           <div className="mt-8 flex flex-col gap-2">
             {links.map((link, idx) => (
-              <SidebarLink key={idx} link={link} />
+              <SidebarLink key={idx} link={link} onClick={link.onClick} />
             ))}
-          </div>
+          </div>
         </div>
         <div>
           <SidebarLink
