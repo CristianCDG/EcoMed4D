@@ -14,28 +14,38 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { cn } from "../utils/cn";
 import jwt from "jsonwebtoken";
 
-type User = { name: string; id: string } | null;
+type User = { name: string; id: string; role: string } | null;
 
 export const SidebarComponent = ({ open, setOpen }: any) => {
   const [usuario, setUsuario] = useState<User>(null);
 
-  
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token"); 
-     
+      const token = localStorage.getItem("token");
+
       if (token) {
         const decodeToken: any = jwt.decode(token);
         if (decodeToken) {
           const loginUser = { name: decodeToken.name, id: decodeToken.id };
-          setUsuario(loginUser);
+          fetchUserRole(loginUser.id).then(role => {
+            console.log('Role fetched:', role); // Log para verificar el rol
+            setUsuario({ ...loginUser, role });
+          });
         }
       }
     }
-  }, []); 
+  }, []);
+
+  const fetchUserRole = async (userId: string) => {
+    const response = await fetch(`http://localhost:5000/api/users/role/${userId}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data.role;
+  };
 
   const links = [
     {
@@ -44,6 +54,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["admin", "user"], // Roles that can see this link
     },
     {
       label: "Videos ecografía 4D",
@@ -51,6 +62,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconSlideshow className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["admin"], // Only admin can see this link
     },
     {
       label: "Conversion de videos",
@@ -58,6 +70,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUpload className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Medico"],
     },
     {
       label: "Registro de pacientes",
@@ -65,6 +78,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUserHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Medico"],
     },
     {
       label: "Administración",
@@ -72,6 +86,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUserHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Admin"],
     },
     {
       label: "Pacientes",
@@ -79,6 +94,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Medico"],
     },
     {
       label: "Perfíl",
@@ -86,6 +102,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Medico"],
     },
     {
       label: "Configuración",
@@ -93,6 +110,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Ninguno"],
     },
     {
       label: "Salír",
@@ -100,8 +118,11 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
+      roles: ["Paciente", "Admin", "Medico"],
     },
   ];
+
+  console.log('Usuario:', usuario); // Log para verificar el estado usuario
 
   return (
     <Sidebar open={open} setOpen={setOpen} animate={false}>
@@ -110,7 +131,9 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
           <Logo />
           <div className="mt-8 flex flex-col gap-2">
             {links.map((link, idx) => (
-              <SidebarLink key={idx} link={link} />
+              usuario && link.roles.includes(usuario.role) && (
+                <SidebarLink key={idx} link={link} />
+              )
             ))}
           </div>
         </div>
