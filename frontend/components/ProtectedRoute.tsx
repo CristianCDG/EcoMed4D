@@ -1,4 +1,5 @@
 // components/ProtectedRoute.tsx
+import Unauthorized from '@/pages/unauthorized';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -42,10 +43,12 @@ const ProtectedRoute = ({ children, allowedRoles, userId }: ProtectedRouteProps)
 
   if (userRole === null) {
     console.log('Loading...'); // Log para verificar el estado de carga
-    return <div>Loading...</div>; // O un componente de carga
+    setTimeout(() => {
+      return <Unauthorized />;
+    }, 2000); // Retraso de 2 segundos
   }
 
-  if (!allowedRoles.includes(userRole)) {
+  if (userRole && !allowedRoles.includes(userRole)) {
     console.log('User role not allowed'); // Log para verificar el estado de roles no permitidos
     return null; // O un componente de carga
   }
