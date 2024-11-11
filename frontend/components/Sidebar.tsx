@@ -51,7 +51,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
 
   const handleLogout = async () => {
     localStorage.removeItem('token');
-                router.push('/login');
+                router.push('/');
     try {
       const response = await fetch("http://localhost:5000/api/users/logout" , {
         method: "POST",
