@@ -124,7 +124,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      roles: ["Medico"],
+      roles: ["Ninguno"],
     },
     {
       label: "Configuración",
