@@ -32,7 +32,7 @@ export default function PatientList() {
   const [filteredPatients, setFilteredPatients] = useState<Datarow[]>([]);
   const [usuario, setUsuario] = useState<{ name: string; id: string } | null>(
     null,
-  ); // Usuario autenticado
+  ); 
 
   // Efecto para obtener los datos del paciente y validar el token
   useEffect(() => {

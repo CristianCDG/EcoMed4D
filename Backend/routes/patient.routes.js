@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPatient, getPatients, sendFileEmail } from "../controllers/patient.controller.js";
+import { createPatient, getPatientbyEmail, getPatients, sendFileEmail } from "../controllers/patient.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import multer from 'multer';
 
@@ -8,6 +8,7 @@ const upload = multer({ dest: 'uploads/' });
 
 router.get('/', authRequired, getPatients);
 router.post('/', authRequired, createPatient);
+router.get('/:email', getPatientbyEmail);
 router.post('/send-file', authRequired, upload.array('files', 2), sendFileEmail);
 
 export default router;

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Label } from "./ui/label";
 import { Input } from "./ui/Input";
 import { cn } from "../utils/cn";
-import { IconBrandGoogle } from "@tabler/icons-react";
+import { emailDominio } from "@/lib/utils";
 
 interface SignInFormDemoProps {
   onSignUpClick?: () => void;
@@ -59,7 +59,6 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
       );
     }
   };
-  const emailDominio = /^[\w.-]+@[a-zA-Z\d-]+\.[a-zA-Z]{2,}$/; // Expresión regular para correos válidos
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
