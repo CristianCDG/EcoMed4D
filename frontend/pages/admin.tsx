@@ -14,6 +14,7 @@ import {
 import { Search } from 'lucide-react';
 import { SidebarComponent } from '@/components/Sidebar';
 import jwt from 'jsonwebtoken';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface User {
   _id: string;
@@ -27,7 +28,7 @@ export default function Admin() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [usuario, setUsuario] = useState<{ name: string; id: string } | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +41,7 @@ export default function Admin() {
         }
         const decodedToken: any = jwt.decode(token);
         if (decodedToken) {
-          setUsuario({ name: decodedToken.name, id: decodedToken.id });
+          setUserId(decodedToken.id);
         }
         const response = await fetch('http://localhost:5000/api/users', {
           method: 'GET',
@@ -87,52 +88,53 @@ export default function Admin() {
   };
 
   return (
-  <div className="rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden h-screen w-full">
-
-      <SidebarComponent open={open} setOpen={setOpen} />
-      <div className="flex-1 container p-4 ml-auto">
-        <div className="mb-4 flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Buscar por nombre o email"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Buscar por nombre o email"
-          />
-          <Button onClick={handleSearch}  style={{ cursor: 'pointer' }}>
-            <Search className="h-4 w-4 mr-2" />
-            Buscar
-          </Button>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Rol</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.map(user => (
-              <TableRow key={user._id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <select
-                    value={user.role}
-                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                  >
-                    <option value="Paciente">Paciente</option>
-                    <option value="Medico">Medico</option>
-                    <option value="Admin">Admin</option>
-                  </select>
-                </TableCell>
+    <ProtectedRoute allowedRoles={['Admin']} userId={userId}>
+      <div className="rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden h-screen w-full">
+        <SidebarComponent open={open} setOpen={setOpen} />
+        <div className="flex-1 container p-4 ml-auto">
+          <div className="mb-4 flex items-center space-x-2">
+            <Input
+              type="text"
+              placeholder="Buscar por nombre o email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Buscar por nombre o email"
+            />
+            <Button onClick={handleSearch} style={{ cursor: 'pointer' }}>
+              <Search className="h-4 w-4 mr-2" />
+              Buscar
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rol</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <ToastContainer />
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map(user => (
+                <TableRow key={user._id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                    >
+                      <option value="Paciente">Paciente</option>
+                      <option value="Medico">Medico</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <ToastContainer />
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
