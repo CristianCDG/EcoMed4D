@@ -1,10 +1,12 @@
 import Patient from "../models/patient.model.js";
+import User from "../models/user.model.js"; // Asegúrate de importar el modelo de User
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import { uploadFiles } from "../functions/s3.js";
+import exp from "constants";
 
 export const getPatients = async (req, res) => {
     const patients = await Patient.find({
@@ -37,6 +39,17 @@ export const createPatient = async (req, res) => {
         });
 
         const savedPatient = await newPatient.save();
+
+        // Crear el usuario en la colección users
+        const newUser = new User({
+            name,
+            lastname,
+            email,
+            password: hashedPassword,
+            role: 'Paciente'
+        });
+
+        await newUser.save();
 
         // Configuración del transporte de correo
         const transporter = nodemailer.createTransport({
@@ -96,11 +109,11 @@ export const sendFileEmail = async (req, res) => {
         // Almacenar archivos
         const fileUrls = await uploadFiles(files, patientId);
 
-         // Actualizar el paciente con las URLs en la base de datos
-         await Patient.findByIdAndUpdate(patientId, {
+        // Actualizar el paciente con las URLs en la base de datos
+        await Patient.findByIdAndUpdate(patientId, {
             $push: { fileUrls: { $each: fileUrls } } // Agrega las URLs al arreglo existente
         });
-        
+
         // Configura el transportador de nodemailer
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -140,5 +153,40 @@ export const sendFileEmail = async (req, res) => {
     } catch (error) {
         console.error('Error al enviar el correo:', error);
         res.status(500).json({ message: 'Error al enviar el correo' });
+    }
+};
+
+export const loginPatient = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Se verifica si el paciente ya existe
+        const patient = await Patient.findOne({ email });
+
+        if (!patient) {
+            return res.status(404).json({ message: "Paciente no encontrado, puede continuar" });
+        }
+
+        // Se verifica si la contraseña es correcta
+        const validPassword = await bcrypt.compare(password, patient.password);
+
+        if (!validPassword) {
+            return res.status(400).json({ message: "Usuario o contraseña incorrectos" });
+        }
+
+        const token = jwt.sign({ id: patient._id, email: patient.email, name: patient.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Se crea el token de acceso
+        res.cookie('token', token);
+        res.status(201).json({
+            id: patient._id,
+            name: patient.name,
+            email: patient.email,
+            token
+        });
+
+    } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        res.status(500).json({ message: "Error interno del servidor: " });
     }
 };
