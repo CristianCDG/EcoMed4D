@@ -16,6 +16,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("Paciente"); // Estado para manejar la selección del rol
 
   // Estados para manejar errores y mensajes
   const [error, setError] = useState("");
@@ -90,7 +91,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role }), // Incluye el rol en la solicitud
       });
 
       const data = await response.json();
@@ -126,6 +127,18 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
 
       <form className="my-8" onSubmit={handleSubmit}>
         <LabelInputContainer className="mb-4">
+          <Label htmlFor="role">Seleccione su rol</Label>
+          <select
+            id="role"
+            className="border rounded-md p-2"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value="Paciente">Paciente</option>
+            <option value="Medico">Medico</option>
+          </select>
+        </LabelInputContainer>
+        <LabelInputContainer className="mb-4">
           <Label htmlFor="email">E-mail</Label>
           <Input
             id="email"
@@ -146,7 +159,7 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
         <LabelInputContainer className="mb-8">
           <Label htmlFor="password">Confirmar contraseña</Label>
           <Input
-            id="twitterpassword"
+            id="confirmPassword"
             placeholder="••••••••"
             type="password"
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -164,14 +177,16 @@ export function SignInFormDemo({ onSignUpClick }: SignInFormDemoProps) {
           <BottomGradient />
         </button>
 
-        <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
-          type="button"
-          onClick={onSignUpClick}
-        >
-          o Registrese &rarr;
-          <BottomGradient />
-        </button>
+        {role !== "Paciente" && (
+          <button
+            className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
+            type="button"
+            onClick={onSignUpClick}
+          >
+            o Registrese &rarr;
+            <BottomGradient />
+          </button>
+        )}
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] mt-3"
