@@ -112,7 +112,7 @@ export const deleteUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         // Se verifica si el usuario existe
         const user = await User.findOne({ email });
@@ -121,22 +121,25 @@ export const loginUser = async (req, res) => {
         }
 
         // Se verifica si la contraseña es correcta
-        const isMatch = await bycrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Usuario o contraseña incorrectos" });
+        }
+
+        // Se verifica si el rol coincide, excepto si el usuario es Admin
+        if (user.role !== role && user.role !== 'Admin') {
+            return res.status(403).json({ message: "Rol incorrecto. Por favor, contacte al administrador." });
         }
 
         // Se genera el token de autenticación para el usuario
         const token = jwt.sign({ id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        //Comentario para hacer commit y quede registrada la incidencia en Jira
-
         res.cookie('token', token);
         res.status(201).json({
             id: user._id,
             name: user.name,
-            username: user.username,
             email: user.email,
+            role: user.role,
             token
         });
 
@@ -327,36 +330,36 @@ export const resetPassword = async (req, res) => {
 export const updateUserRole = async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
-  
-    try {
-      const user = await User.findById(id);
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-  
-      user.role = role;
-      await user.save();
-  
-      res.status(200).json({ message: 'Rol actualizado exitosamente' });
-    } catch (error) {
-      res.status(500).json({ message: 'Error al actualizar el rol', error });
-    }
-  };
 
-  export const getUserRole = async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res.json({ role: user.role });
-      console.log('Rol del usuario:', user.role);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-  export const logout = async (req, res) => {
+        user.role = role;
+        await user.save();
+
+        res.status(200).json({ message: 'Rol actualizado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar el rol', error });
+    }
+};
+
+export const getUserRole = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ role: user.role });
+        console.log('Rol del usuario:', user.role);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const logout = async (req, res) => {
     res.cookie('token', "", {
         expires: new Date(0),
     });
