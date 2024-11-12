@@ -52,7 +52,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
 
   const handleLogout = async () => {
     localStorage.removeItem('token');
-                router.push('/login');
+                router.push('/');
     try {
       const response = await fetch("http://localhost:5000/api/users/logout" , {
         method: "POST",
@@ -125,7 +125,7 @@ export const SidebarComponent = ({ open, setOpen }: any) => {
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      roles: ["Medico"],
+      roles: ["Ninguno"],
     },
     {
       label: "Configuración",
