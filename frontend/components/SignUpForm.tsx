@@ -8,6 +8,7 @@ import {
   IconBrandGoogle,
   IconBrandOnlyfans,
 } from '@tabler/icons-react';
+import { emailDominio } from "@/lib/utils";
 
 interface SignupFormDemoProps {
   onSignInClick?: () => void;
@@ -35,9 +36,7 @@ export function SignupFormDemo({ onSignInClick }: SignupFormDemoProps) {
   const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
  
-  const emailDominio = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Expresión regular para correos válidos
 
-  // Funcion que se ejecuta cuando se envia el formulario para registrarse
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
