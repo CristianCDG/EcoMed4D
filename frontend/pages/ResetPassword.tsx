@@ -49,7 +49,7 @@ export default function ResetPassword() {
         }
 
         setMessage("Contraseña restablecida con éxito.");
-        router.push("/login");
+        router.push("/");
     } catch (error) {
         console.error('Error al conectar con el servidor:', error);
         setError("Error al conectar con el servidor.");
